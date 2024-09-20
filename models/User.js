@@ -1,62 +1,71 @@
 const mongoose = require("mongoose");
-const UserSchema = mongoose.Schema({
-  name: {
+
+const UserSchema = new mongoose.Schema({
+  role: {
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "Role", // Refers to the Role model
+    required: true
+  },
+  country: {
     type: String,
     required: true,
+  },
+  state: {
+    type: String,
+    required: true,
+  },
+  city: {
+    type: String,
+    required: true,
+  },
+  firstName: {
+    type: String,
+    required: true,
+  },
+  lastName: {
+    type: String,
+    required: true,
+  },
+  middleName: {
+    type: String,
+  },
+  phoneNumber1: {
+    type: String,
+    required: true,
+  },
+  phoneNumber2: {
+    type: String,
   },
   email: {
     type: String,
     required: true,
-    unique: this.email != "" ? true : false,
+    unique: true,
+  },
+  secondaryEmail: {
+    type: String,
+  },
+  address: {
+    type: String,
+  },
+  dateOfBirth: {
+    type: Date,
+    required: true,
+  },
+  gender: {
+    type: String,
+    enum: ["Male", "Female", "Other"],
+    required: true,
   },
   password: {
     type: String,
     required: true,
-    max: 1024,
-    min: 6,
+    minlength: 6,
+    maxlength: 1024,
   },
-  type: { 
-    type: String,
-    default: "user",
-  },
-  status: {
-    type: String,
-    enum: ["active", "inactive", "deleted"],
-    default: "active",
-  },
-  phone: {
-    type: String,
-    required: true,
-  },
-  address: {
-    type: [
-      {
-        latitude: {
-          type: Number,
-          required: true,
-        },
-        longitude: {
-          type: Number,
-        },
-        floor: {
-          type: String,
-        },
-        street: {
-          type: String,
-        },
-        room: {
-          type: String,
-        },
-        tag: {
-          type: String,
-        },
-      }
-    ],
-  },
-  date: {
+  createdAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-module.exports = mongoose.model("users", UserSchema);
+module.exports = mongoose.model("User", UserSchema);

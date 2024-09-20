@@ -38,29 +38,86 @@ router.get("/get-users/:id", async (req, res) => {
 
 router.post("/create-user", async (req, res) => {
     try {
-        let {name, email, password, phone} = req.body
-        if (!name || !email || !password || !phone) return res.status(400).json({message: "All fields are required"})
-        email = email.toLowerCase()
-        if(!emailValidation(email)) return res.status(400).json({message: "Invalid email format"})
-        const userExists = await User.findOne({email})
-        if(userExists) return res.status(400).json({message: "User Email already exists"})
-        const phoneExists = await User.findOne({phone})
-        if(phoneExists) return res.status(400).json({message: "User Phone already exists"})
-
-        const user = new User({
-            name,
+        const {
+            firstName,
+            lastName,
+            middleName,
             email,
-            password: bycrypt.hashSync(password, 10),
-            phone,
-        })
+            password,
+            phoneNumber1,
+            phoneNumber2,
+            secondaryEmail,
+            address,
+            country,
+            state,
+            city,
+            dateOfBirth,
+            gender,
+            roleId
+        } = req.body;
 
-        await user.save()
-        res.status(201).json({message: "User created successfully"})
+        // Check if all required fields are provided
+        if (!firstName || !lastName || !email || !password || !phoneNumber1 || !country || !state || !city || !dateOfBirth || !gender || !roleId) {
+            return res.status(400).json({ message: "All required fields must be provided" });
+        }
+
+        // Lowercase email and validate its format
+        const lowerCaseEmail = email.toLowerCase();
+        if (!emailValidation(lowerCaseEmail)) {
+            return res.status(400).json({ message: "Invalid email format" });
+        }
+
+        // Check if email already exists
+        const userExists = await User.findOne({ email: lowerCaseEmail });
+        if (userExists) {
+            return res.status(400).json({ message: "User with this email already exists" });
+        }
+
+        // Check if phone number already exists
+        const phoneExists = await User.findOne({ phoneNumber1 });
+        if (phoneExists) {
+            return res.status(400).json({ message: "User with this phone number already exists" });
+        }
+
+        // Check if role exists
+        const role = await Role.findById(roleId);
+        if (!role) {
+            return res.status(400).json({ message: "Invalid role ID" });
+        }
+
+        // Hash the password
+        const hashedPassword = bcrypt.hashSync(password, 10);
+
+        // Create a new user with all the fields
+        const user = new User({
+            firstName,
+            lastName,
+            middleName,
+            email: lowerCaseEmail,
+            password: hashedPassword,
+            phoneNumber1,
+            phoneNumber2,
+            secondaryEmail,
+            address,
+            country,
+            state,
+            city,
+            dateOfBirth: new Date(dateOfBirth), // Ensure date is properly formatted
+            gender,
+            role: roleId, // Referencing the Role model
+        });
+
+        // Save the user in the database
+        await user.save();
+
+        // Return success message
+        res.status(201).json({ message: "User created successfully" });
+
     } catch (error) {
-        console.log("error creating user", error)
-        res.status(500).json({message: "Internal server error"})
+        console.error("Error creating user:", error);
+        res.status(500).json({ message: "Internal server error" });
     }
-})
+});
 
 router.put("/update-user/:id", async (req, res) => {
     try {
