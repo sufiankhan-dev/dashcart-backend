@@ -1,11 +1,7 @@
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
-  role: {
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: "Role", // Refers to the Role model
-    required: true
-  },
+  
   country: {
     type: String,
     required: true,
@@ -56,6 +52,15 @@ const UserSchema = new mongoose.Schema({
     enum: ["Male", "Female", "Other"],
     required: true,
   },
+  type: {
+    type: String,
+    default: "user",
+},
+  status: {
+    type: String,
+    enum: ["active", "inactive", "deleted"],
+    default: "active",
+},
   password: {
     type: String,
     required: true,

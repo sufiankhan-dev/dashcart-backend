@@ -60,6 +60,9 @@ app.use("/api/admin/config", adminMiddleware, adminConfigRoutes);
 const riderRoutes = require("./routes/admin/riderController");
 app.use("/api/admin/rider", adminMiddleware, riderRoutes);
 
+const employeRoutes = require("./routes/admin/employeController");
+app.use("/api/admin/employe", adminMiddleware, employeRoutes);
+
 
 // user
 const userMiddleware = require("./middlewares/verifyUser");
