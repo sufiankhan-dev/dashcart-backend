@@ -63,6 +63,14 @@ app.use("/api/admin/rider", adminMiddleware, riderRoutes);
 const employeRoutes = require("./routes/admin/employeController");
 app.use("/api/admin/employe", adminMiddleware, employeRoutes);
 
+const locationtypeRoutes = require("./routes/admin/locationtypeController");
+app.use("/api/admin/locationtype", adminMiddleware, locationtypeRoutes);
+
+const locationRoutes = require("./routes/admin/locationlistController");
+app.use("/api/admin/location", adminMiddleware, locationRoutes);
+
+
+
 
 // user
 const userMiddleware = require("./middlewares/verifyUser");
