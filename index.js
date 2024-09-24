@@ -70,6 +70,17 @@ const locationRoutes = require("./routes/admin/locationlistController");
 app.use("/api/admin/location", adminMiddleware, locationRoutes);
 
 
+const attendenceRoutes = require("./routes/admin/attendenceController");
+app.use("/api/admin/attendence", adminMiddleware, attendenceRoutes);
+
+const schedulesRoutes = require("./routes/admin/scheduleeController");
+app.use("/api/admin/schedule", adminMiddleware, schedulesRoutes);
+
+
+
+
+
+
 
 
 // user
