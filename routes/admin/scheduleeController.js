@@ -39,13 +39,26 @@ router.post('/create-schedule', async (req, res) => {
 router.get('/get-schedules', async (req, res) => {
     try {
         const { locationId, month, year } = req.query;
-        const startDate = new Date(year, month - 1, 1);
-        const endDate = new Date(year, month, 0); // Last day of the month
 
+        // Ensure month and year are numbers and valid
+        const parsedMonth = parseInt(month, 10);
+        const parsedYear = parseInt(year, 10);
+
+        if (isNaN(parsedMonth) || isNaN(parsedYear) || parsedMonth < 1 || parsedMonth > 12) {
+            return res.status(400).json({ message: 'Invalid month or year.' });
+        }
+
+        // Create start and end dates for the query
+        const startDate = new Date(parsedYear, parsedMonth - 1, 1);
+        const endDate = new Date(parsedYear, parsedMonth, 0); // Last day of the month
+
+        // Find schedules in the date range for the given location
         const schedules = await Schedule.find({
             location: locationId,
             date: { $gte: startDate, $lt: endDate }
-        }).populate('events.assignedEmployee', 'employeeName').populate('location', 'locationName');
+        })
+        .populate('events.assignedEmployee', 'employeeName')
+        .populate('location', 'locationName');
 
         res.status(200).json(schedules);
     } catch (error) {
@@ -53,4 +66,5 @@ router.get('/get-schedules', async (req, res) => {
         res.status(500).json({ message: 'Internal server error.' });
     }
 });
+
 module.exports = router
