@@ -178,74 +178,121 @@ router.post("/create-user", async (req, res) => {
   }
 });
 
+
 router.put("/update-user/:id", async (req, res) => {
   try {
-    let { name, email, password, phone } = req.body;
+    const { email, firstName, lastName, phoneNumber1, password, role } = req.body;
+
     const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
-    if (email) {
-      email = email.toLowerCase();
-      if (!emailValidation(email))
-        return res.status(400).json({ message: "Invalid email format" });
-      const userExists = await User.findOne({ email });
-      if (userExists && userExists._id.toString() !== req.params.id)
-        return res.status(400).json({ message: "User Email already exists" });
-    }
-    if (phone) {
-      const phoneExists = await User.findOne({ phone });
-      if (phoneExists && phoneExists._id.toString() !== req.params.id)
-        return res.status(400).json({ message: "User Phone already exists" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
 
-    user.name = name || user.name;
-    user.email = email || user.email;
-    user.password = password ? bcrypt.hashSync(password, 10) : user.password;
-    user.phone = phone || user.phone;
+    // Validate the email if it's being updated
+    if (email && !emailValidation(email)) {
+      return res.status(400).json({ message: "Invalid email format." });
+    }
 
+    // Check if the phone number is unique if it's being updated
+    if (phoneNumber1 && phoneNumber1 !== user.phoneNumber1) {
+      const phoneExists = await User.findOne({ phoneNumber1 });
+      if (phoneExists) {
+        return res
+          .status(400)
+          .json({ message: "Phone number is already associated with another account." });
+      }
+    }
+
+    // Update the user's details
+    if (email) user.email = email.toLowerCase();
+    if (firstName) user.firstName = firstName;
+    if (lastName) user.lastName = lastName;
+    if (phoneNumber1) user.phoneNumber1 = phoneNumber1;
+
+    // Hash the password if it's being updated
+    if (password) {
+      user.password = bcrypt.hashSync(password, 10);
+    }
+
+    // Update role if provided
+    if (role) {
+      const roleReference = await Role.findById(role);
+      if (!roleReference) {
+        return res.status(400).json({ message: "Invalid role ID." });
+      }
+      user.role = roleReference._id;
+    }
+
+    // Save the updated user
     await user.save();
-    res.status(200).json({ message: "User updated successfully" });
+
+    return res.status(200).json({ message: "User updated successfully.", user });
   } catch (error) {
-    console.log("error updating user", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Error updating user:", error);
+    return res.status(500).json({ message: "Internal server error." });
   }
 });
 
-router.put("/change-status/:id", async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (user.status === "active") {
-      user.status = "inactive";
-    } else {
-      user.status = "active";
-    }
 
-    await user.save();
-    res.status(200).json({ message: "User status updated successfully" });
-  } catch (error) {
-    console.log("error changing user status", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
+// Soft delete a user (change status to "deleted")
+// Soft delete a user (change status to "deleted")
 router.delete("/delete-user/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-    user.name = user.name + "-deleted";
-    user.email = user.email + "-deleted";
-    user.phone = user.phone + "-deleted";
+    // Set user status to 'deleted'
     user.status = "deleted";
 
+    // Do not modify the 'role' field, just save the updated status
+    await user.save({ validateBeforeSave: false });  // Disable validation temporarily
+
+    return res.status(200).json({ message: "User deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+
+
+
+
+router.put("/update-user-status/:id", async (req, res) => {
+  try {
+    console.log("User ID from Params: ", req.params.id);
+
+    // Find the user by ID
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    console.log("Current User Status: ", user.status);
+
+    // Toggle the user status between 'active' and 'inactive' or set to deleted
+    user.status = user.status === "active" ? "inactive" : "deleted";
+
+    // Save the updated status
     await user.save();
 
-    res.status(200).json({ message: "User deleted successfully" });
+    console.log("Updated User Status: ", user.status);
+
+    // Send success response
+    res.status(200).json({ message: "User status updated successfully", status: user.status });
   } catch (error) {
-    console.log("error deleting user", error);
+    console.error("Error updating user status:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+
+
+
+
+
 
 module.exports = router;

@@ -56,10 +56,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: "user",
 },
-  status: {
-    type: String,
-    enum: ["active", "inactive", "deleted"],
-    default: "active",
+status: {
+  type: String,
+  enum: ['active', 'inactive', 'deleted'], // Ensure these statuses are defined
+  default: 'active',
 },
   password: {
     type: String,

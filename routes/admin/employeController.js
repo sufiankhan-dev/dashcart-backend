@@ -53,7 +53,8 @@ router.post('/create-employee', async (req, res) => {
             payRate,
             managerName,
             notes,          // optional
-            approved,       // optional
+            approved, 
+            salarystatus,      // optional
             status          // optional
         } = req.body;
 
@@ -75,7 +76,8 @@ router.post('/create-employee', async (req, res) => {
             payRate,
             managerName,
             notes,          // optional
-            approved,       // defaults to false
+            approved,  
+            salarystatus,     // defaults to false
             status          // defaults to "active"
         });
 
@@ -85,6 +87,63 @@ router.post('/create-employee', async (req, res) => {
     } catch (error) {
         console.error('Error creating employee:', error);
         return res.status(500).json({ message: 'Internal server error.' });
+    }
+});
+
+
+// Route to change salary status
+router.put("/change-salarystatus/:id", async (req, res) => {
+    try {
+        // Find employee by ID
+        const employee = await Employee.findById(req.params.id);
+        if (!employee) {
+            return res.status(404).json({ message: "Employee not found" });
+        }
+
+        // Toggle salarystatus between 'paid' and 'unpaid'
+        employee.salarystatus = employee.salarystatus === "paid" ? "unpaid" : "paid";
+
+        // Save updated employee
+        await employee.save();
+
+        // Respond with success
+        res.status(200).json({ message: "Employee salary status updated successfully", salarystatus: employee.salarystatus });
+    } catch (error) {
+        console.error("Error updating salary status:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+
+router.put('/change-status/:id', async (req, res) => {
+    const { status } = req.body; // new status
+    const validStatuses = ["active", "inactive"];
+
+    if (!validStatuses.includes(status)) {
+        return res.status(400).json({ message: 'Invalid status provided' });
+    }
+
+    try {
+        const employee = await Employee.findByIdAndUpdate(req.params.id, { status }, { new: true });
+        
+        if (!employee) {
+            return res.status(404).json({ message: 'Employee not found' });
+        }
+
+        res.status(200).json({ message: 'Employee status updated', employee });
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating status', error });
+    }
+});
+router.delete("/delete-employe/:id", async (req, res) => {
+    try {
+        const employee = await Employee.findByIdAndDelete(req.params.id);
+        if (!employee) return res.status(404).json({ message: "Employee not found" });
+
+        res.status(200).json({ message: "delete employe successfully" });
+    } catch (error) {
+        console.log("Error delete-employe", error);
+        res.status(500).send("Internal server error");
     }
 });
 

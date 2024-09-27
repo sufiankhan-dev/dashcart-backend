@@ -11,7 +11,7 @@ const EmployeeSchema = new mongoose.Schema({
     },
     employeeIDNumber: {
         type: String,
-        default: `EMP-${Math.floor(1000 + Math.random() * 9000)}`,  // Generates a random ID like EMP-1234
+        default: `EMP-${Math.floor(1090 + Math.random() * 9100)}`,  
         required: true,
     },
     contactNumber1: {
@@ -20,13 +20,13 @@ const EmployeeSchema = new mongoose.Schema({
     },
     contactNumber2: {
         type: String,
-        required: false,  // Optional second contact number
+        required: false,  
     },
     employeeCategory: {
         type: String,
         enum: ["Shack", "Regular"],
 
-        required: true,  // Employee category (can be a string or enum)
+        required: true, 
     },
     guardCardNumber: {
         type: String,
@@ -55,6 +55,12 @@ const EmployeeSchema = new mongoose.Schema({
     approved: {
         type: Boolean,
         default: false,  // Approval status, defaults to false
+    },
+    salarystatus:{
+        type: String,
+        enum: ["paid", "unpaid"],
+        default: "unpaid",
+
     },
     status: {
         type: String,

@@ -5,6 +5,7 @@ const bycrypt = require("bcryptjs")
 const Product = require("../../models/Product")
 const VendorCategory = require("../../models/VendorCategory")
 const upload = require("../../helper/multerUpload")
+const User = require("../../models/User")
 const emailValidation = require("../../helper/fieldValidation").emailValidation
 
 router.get("/get-vendors", async (req, res) => {
@@ -126,19 +127,29 @@ router.put("/update-vendor/:id", upload.upload.single("image") ,async (req, res)
     }
 })
 
-router.put("/update-vendor-status/:id", async(req, res)=> {
+// Update user status (toggle between 'active' and 'inactive')
+router.put("/update-user-status/:id", async (req, res) => {
     try {
-        const vendor = await Vendor.findById(req.params.id)
-        if(!vendor) return res.status(404).json({ message: "Vendor not found "})
-        
-        vendor.status = vendor.status === "active" ? "inactive": "active"
-        await vendor.save()
-        res.status(200).json({ message: "Vendor status updated successfully" })
-    } catch(error){
-        console.log("Error updating vendor status: ", error)
-        res.status(500).json({message: "Internal server error"})
+      // Find the user by ID
+      const user = await User.findById(req.params.id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      // Toggle the user status between 'active' and 'inactive'
+      user.status = user.status === "active" ? "inactive" : "deleted";
+  
+      // Save the updated status
+      await user.save();
+  
+      // Send success response
+      res.status(200).json({ message: "User status updated successfully", status: user.status });
+    } catch (error) {
+      console.error("Error updating user status:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
-})
+  });
+  
 
 router.delete("/delete-vendor/:id", async(req, res)=> {
     try {
