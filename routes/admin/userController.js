@@ -163,7 +163,7 @@ router.post("/create-user", async (req, res) => {
       dateOfBirth,
       gender,
       password: hashedPassword,
-      role: roleReference._id, // Reference to Role ID
+      role: roleReference._id, 
     });
 
     // Save the new user to the database
@@ -197,9 +197,9 @@ router.put("/update-user/:id", async (req, res) => {
     if (phoneNumber1 && phoneNumber1 !== user.phoneNumber1) {
       const phoneExists = await User.findOne({ phoneNumber1 });
       if (phoneExists) {
-        return res
-          .status(400)
-          .json({ message: "Phone number is already associated with another account." });
+        return res.status(400).json({
+          message: "Phone number is already associated with another account.",
+        });
       }
     }
 
@@ -221,6 +221,25 @@ router.put("/update-user/:id", async (req, res) => {
         return res.status(400).json({ message: "Invalid role ID." });
       }
       user.role = roleReference._id;
+
+      // Update the type based on the role
+      switch (roleReference.name) {
+        case 'admin':
+          user.type = 'admin';
+          break;
+        case 'super admin':
+          user.type = 'super admin';
+          break;
+        case 'time sheet':
+          user.type = 'time sheet';
+          break;
+        case 'dispatch':
+          user.type = 'dispatch';
+          break;
+        // Add more cases as needed for other roles
+        default:
+          user.type = 'user'; // Default type if no match
+      }
     }
 
     // Save the updated user
@@ -235,8 +254,7 @@ router.put("/update-user/:id", async (req, res) => {
 
 
 
-// Soft delete a user (change status to "deleted")
-// Soft delete a user (change status to "deleted")
+
 router.delete("/delete-user/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id);

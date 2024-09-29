@@ -2,36 +2,66 @@ const express = require('express');
 const router = express.Router();
 const Attendance = require('../../models/Attendence'); 
 const Employee = require('../../models/Employe');    
-const Location = require('../../models/Locationlist');     
+const Location = require('../../models/Locationlist');
+const mongoose = require('mongoose');
 
-// Get all attendances with pagination
+
+
+
+// router.get('/get-employees-by-location/:locationId', async (req, res) => {
+//     const { locationId } = req.params;
+
+//     if (!mongoose.Types.ObjectId.isValid(locationId)) {
+//         return res.status(400).json({ message: 'Invalid location ID' });
+//     }
+
+//     try {
+//         const employees = await Employee.find({ location: locationId });
+
+//         if (employees.length === 0) {
+//             return res.status(404).json({ message: 'No employees found for this location' });
+//         }
+
+//         res.status(200).json({ employees });
+//     } catch (error) {
+//         console.error('Error fetching employees:', error);
+//         res.status(500).json({ message: 'Internal server error' });
+//     }
+// });
+
+// Existing routes...
+
+router.get('/attendance/:id', async (req, res) => {
+    try {
+        const attendance = await Attendance.findById(req.params.id)
+            .populate('employee', 'employeeName employeeIDNumber') // Populate employee details
+            .populate('location', 'locationName address'); // Populate location details
+
+        if (!attendance) {
+            return res.status(404).json({ message: 'Attendance record not found.' });
+        }
+
+        res.status(200).json(attendance);
+    } catch (error) {
+        console.error('Error fetching attendance:', error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+});
+
+
 router.get('/get-attendances', async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const skip = (page - 1) * limit;
-        const total = await Attendance.countDocuments();
-        const hasNextPage = (skip + limit) < total;
-
         const attendances = await Attendance.find()
             .populate('employee', 'employeeName employeeIDNumber')  
-            .populate('location', 'locationName address') 
-            .limit(limit)
-            .skip(skip);
+            .populate('location', 'locationName address'); 
 
-        const paginationObj = {
-            page,
-            limit,
-            total,
-            hasNextPage
-        };
-
-        res.status(200).json({ attendances, pagination: paginationObj });
+        res.status(200).json({ attendances });
     } catch (error) {
-        console.error('Error fetching attendances', error);
+        console.error('Error fetching attendances:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 
 // Get attendance by ID
 router.get('/get-attendance/:id', async (req, res) => {

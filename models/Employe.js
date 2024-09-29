@@ -62,6 +62,11 @@ const EmployeeSchema = new mongoose.Schema({
         default: "unpaid",
 
     },
+    type: {
+        type: String,
+        default: "user",
+    },
+
     status: {
         type: String,
         enum: ["active", "inactive", "terminated"],

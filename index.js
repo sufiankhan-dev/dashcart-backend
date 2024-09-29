@@ -77,6 +77,9 @@ const schedulesRoutes = require("./routes/admin/scheduleeController");
 app.use("/api/admin/schedule", adminMiddleware, schedulesRoutes);
 
 
+const confirmationRoutes = require("./routes/admin/confirmationController");
+app.use("/api/admin/call", adminMiddleware, confirmationRoutes);
+
 
 
 

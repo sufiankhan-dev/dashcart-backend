@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const AttendanceSchema = new mongoose.Schema({
     employee: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Employee',  // Reference to Employee model
+        ref: 'Employee',  
         required: true,
     },
     location: {
@@ -29,7 +29,7 @@ const AttendanceSchema = new mongoose.Schema({
     checkOutRecords: [{
         checkOutTime: {
             type: Date,
-            required: true,  // Check-out time is required when checking out
+            required: true, 
         },
         checkOutLocationName: {
             type: String,  // Store the location name for check-out
@@ -50,5 +50,8 @@ const AttendanceSchema = new mongoose.Schema({
         default: Date.now,  // Automatically record the creation time
     }
 });
+
+AttendanceSchema.index({ employee: 1 });
+AttendanceSchema.index({ location: 1 });
 
 module.exports = mongoose.model('Attendance', AttendanceSchema);

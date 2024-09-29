@@ -56,16 +56,16 @@ const LocationSchema = new mongoose.Schema({
         type:String,  
         required: true,
     },
+    employees: [{ // Ensure this is defined
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Employee' // Reference to Employee model
+    }],
     locationType: {
         type: mongoose.Schema.Types.ObjectId,  // Reference to LocationType model
         ref: 'LocationType',
         required: true,
     },
-    parentLocation: {
-        type: mongoose.Schema.Types.ObjectId,  // Reference to Location model (self-reference)
-        ref: 'Location',
-        required: false, // Optional for nested location structure
-    },
+   
     schedule: [ScheduleSchema],  // Array of schedule objects
     clientDetails: [ClientDetailsSchema],  // Array of client details objects
     createdAt: {

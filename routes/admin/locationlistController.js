@@ -1,14 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const Location = require('../../models/Locationlist');  // Assuming this is the path to your Location model
+const Location = require('../../models/Locationlist'); 
+const Employee = require('../../models/Employe');
 
 // Create a new Location
 router.post('/create-location', async (req, res) => {
     try {
-        const { locationName, address, userList, timeZone, locationType, parentLocation, schedule, clientDetails } = req.body;
+        const {
+            locationName,
+            address,
+            userList,
+            timeZone,
+            locationType,
+            schedule,
+            clientDetails,
+            employees  // Add employees field here
+        } = req.body;
 
         // Validate required fields
-        if (!locationName || !address || !userList || !timeZone || !locationType || !schedule || !clientDetails) {
+        if (!locationName || !address || !userList || !timeZone || !locationType || !schedule || !clientDetails || !employees) {
             return res.status(400).json({ message: 'Required fields are missing.' });
         }
 
@@ -19,9 +29,9 @@ router.post('/create-location', async (req, res) => {
             userList,
             timeZone,
             locationType,
-            parentLocation,
             schedule,
-            clientDetails
+            clientDetails,
+            employees  // Include employees field in the new Location
         });
 
         // Save the new Location to the database
@@ -33,6 +43,7 @@ router.post('/create-location', async (req, res) => {
     }
 });
 
+
 // Get all Locations
 router.get('/get-locations', async (req, res) => {
     try {
@@ -40,7 +51,8 @@ router.get('/get-locations', async (req, res) => {
             .populate('userList')       // Populate user details
             .populate('timeZone')       // Populate timezone details
             .populate('locationType')   // Populate location type details
-            .populate('parentLocation'); // Populate parent location details
+            .populate('employees', 'employeeName employeeIDNumber'); // Populate employees
+
         res.status(200).json(locations);
     } catch (error) {
         console.error('Error fetching Locations:', error);
@@ -55,7 +67,6 @@ router.get('/get-location/:id', async (req, res) => {
             .populate('userList')
             .populate('timeZone')
             .populate('locationType')
-            .populate('parentLocation');
         if (!location) return res.status(404).json({ message: 'Location not found' });
         res.status(200).json(location);
     } catch (error) {
