@@ -1,40 +1,49 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 // Schema for schedule timings (days and start/end times)
 const ScheduleSchema = new mongoose.Schema({
-    day: {
-        type: String,
-        enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-        required: true,
-    },
-    startTime: {
-        type: String, // You can also use Date if you want to manage timezones properly
-        required: true,
-    },
-    endTime: {
-        type: String,
-        required: true,
-    },
+  day: {
+    type: String,
+    enum: [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ],
+    required: true,
+  },
+  startTime: {
+    type: String, // You can also use Date if you want to manage timezones properly
+    required: true,
+  },
+  endTime: {
+    //end time of the schedule
+    type: String,
+    required: true,
+  },
 });
 
 // Schema for client details
 const ClientDetailsSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-    },
-    designation: {
-        type: String,
-        required: true,
-    },
-    email: {
-        type: String,
-        required: true,
-    },
-    phone: {
-        type: String,
-        required: true,
-    },
+  name: {
+    type: String,
+    required: true,
+  },
+  designation: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+  },
+  phone: {
+    type: String,
+    required: true,
+  },
 });
 
 // Main Location schema
@@ -74,4 +83,4 @@ const LocationSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('Location', LocationSchema);
+module.exports = mongoose.model("Location", LocationSchema);
