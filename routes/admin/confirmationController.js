@@ -34,26 +34,15 @@ router.post("/add-confirmation-call", async (req, res) => {
 });
 
 router.get("/get-confirmation-calls", async (req, res) => {
-    const { startDate, endDate } = req.query;
-
-    // Validate date format (YYYY-MM-DD)
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!dateRegex.test(startDate) || !dateRegex.test(endDate)) {
-        return res.status(400).json({ message: "Invalid date format. Use YYYY-MM-DD." });
-    }
-
     try {
-        const confirmationCalls = await ConfirmationCall.find({
-            createdAt: {
-                $gte: new Date(startDate),
-                $lte: new Date(endDate),
-            },
-        })
-        .populate("employee", "firstName lastName") // Adjust fields as necessary
-        .populate("location", "locationName address"); // Adjust fields as necessary
+        const confirmationCalls = await ConfirmationCall.find()
+            .populate("employee", "firstName lastName") // Adjust fields as necessary
+            .populate("location", "locationName address"); // Adjust fields as necessary
+
+        console.log("Fetched confirmation calls:", confirmationCalls);
 
         if (confirmationCalls.length === 0) {
-            return res.status(404).json({ message: "No confirmation calls found for this date range." });
+            return res.status(404).json({ message: "No confirmation calls found." });
         }
 
         res.status(200).json({ confirmationCalls });
@@ -62,6 +51,7 @@ router.get("/get-confirmation-calls", async (req, res) => {
         res.status(500).json({ message: "Internal server error." });
     }
 });
+
 
 router.put("/change-call-status/:id", async (req, res) => {
     const { status } = req.body;
