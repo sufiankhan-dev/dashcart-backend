@@ -26,7 +26,7 @@ const ScheduleSchema = new mongoose.Schema({
   },
 });
 
-// Schema for client details
+// Schema for client detailss
 const ClientDetailsSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -48,39 +48,44 @@ const ClientDetailsSchema = new mongoose.Schema({
 
 // Main Location schema
 const LocationSchema = new mongoose.Schema({
-    locationName: {
-        type: String,
-        required: true,
+  locationName: {
+    type: String,
+    required: true,
+  },
+  address: {
+    type: String,
+    required: true,
+  },
+  userList: [
+    {
+      type: mongoose.Schema.Types.ObjectId, // Reference to User model
+      ref: "User",
+      required: true,
     },
-    address: {
-        type: String,
-        required: true,
+  ],
+  timeZone: {
+    type: String,
+    required: true,
+  },
+  employees: [
+    {
+      // Ensure this is defined
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Employee", // Reference to Employee model
     },
-    userList: [{
-        type: mongoose.Schema.Types.ObjectId,  // Reference to User model
-        ref: 'User',
-        required: true,
-    }],
-    timeZone: {
-        type:String,  
-        required: true,
-    },
-    employees: [{ // Ensure this is defined
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Employee' // Reference to Employee model
-    }],
-    locationType: {
-        type: mongoose.Schema.Types.ObjectId,  // Reference to LocationType model
-        ref: 'LocationType',
-        required: true,
-    },
-   
-    schedule: [ScheduleSchema],  // Array of schedule objects
-    clientDetails: [ClientDetailsSchema],  // Array of client details objects
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    }
+  ],
+  locationType: {
+    type: mongoose.Schema.Types.ObjectId, // Reference to LocationType model
+    ref: "LocationType",
+    required: true,
+  },
+
+  schedule: [ScheduleSchema], // Array of schedule objects
+  clientDetails: [ClientDetailsSchema], // Array of client details objects
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model("Location", LocationSchema);
