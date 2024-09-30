@@ -116,6 +116,41 @@ router.post('/create-attendance', async (req, res) => {
         res.status(500).json({ message: 'Internal server error.' });
     }
 });
+router.put('/check-in-attendance/:id', async (req, res) => {
+    try {
+        const {
+            checkInTime,
+            checkInLocationName,
+            contactNumber
+        } = req.body;
+
+        // Validate required fields
+        if (!checkInTime || !checkInLocationName || !contactNumber) {
+            return res.status(400).json({ message: 'Check-in time, location, and contact number must be provided.' });
+        }
+
+        // Find attendance record by ID
+        const attendance = await Attendance.findById(req.params.id);
+        if (!attendance) {
+            return res.status(404).json({ message: 'Attendance not found' });
+        }
+
+        // Update the attendance record
+        attendance.checkInRecords.push({
+            checkInTime,
+            checkInLocationName,
+            contactNumber
+        });
+
+        // Save the updated attendance
+        await attendance.save();
+        res.status(200).json({ message: 'Attendance checked in successfully.' });
+    } catch (error) {
+        console.error('Error checking in attendance:', error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+});
+
 
 // Update attendance record (check-out)
 router.put('/update-attendance/:id', async (req, res) => {
