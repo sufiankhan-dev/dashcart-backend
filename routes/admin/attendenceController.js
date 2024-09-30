@@ -130,12 +130,10 @@ router.put("/check-in-attendance/:id", async (req, res) => {
 
     // Validate required fields
     if (!checkInTime || !checkInLocationName || !contactNumber) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Check-in time, location, and contact number must be provided.",
-        });
+      return res.status(400).json({
+        message:
+          "Check-in time, location, and contact number must be provided.",
+      });
     }
 
     // Find attendance record by ID
@@ -161,53 +159,51 @@ router.put("/check-in-attendance/:id", async (req, res) => {
 });
 
 // Update specific check-in record
-router.put("/update-check-in/:id/:recordIndex", async (req, res) => {
-  try {
-    const { checkInTime, checkInLocationName, contactNumber } = req.body;
+// router.put("/update-check-in/:id/:recordIndex", async (req, res) => {
+//   try {
+//     const { checkInTime, checkInLocationName, contactNumber } = req.body;
 
-    // Validate required fields
-    if (!checkInTime || !checkInLocationName || !contactNumber) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Check-in time, location, and contact number must be provided.",
-        });
-    }
+//     // Validate required fields
+//     if (!checkInTime || !checkInLocationName || !contactNumber) {
+//       return res.status(400).json({
+//         message:
+//           "Check-in time, location, and contact number must be provided.",
+//       });
+//     }
 
-    // Find attendance record by ID
-    const attendance = await Attendance.findById(req.params.id);
-    if (!attendance) {
-      return res.status(404).json({ message: "Attendance not found" });
-    }
+//     // Find attendance record by ID
+//     const attendance = await Attendance.findById(req.params.id);
+//     if (!attendance) {
+//       return res.status(404).json({ message: "Attendance not found" });
+//     }
 
-    // Validate the record index
-    const recordIndex = parseInt(req.params.recordIndex);
-    if (
-      isNaN(recordIndex) ||
-      recordIndex < 0 ||
-      recordIndex >= attendance.checkInRecords.length
-    ) {
-      return res
-        .status(400)
-        .json({ message: "Invalid check-in record index." });
-    }
+//     // Validate the record index
+//     const recordIndex = parseInt(req.params.recordIndex);
+//     if (
+//       isNaN(recordIndex) ||
+//       recordIndex < 0 ||
+//       recordIndex >= attendance.checkInRecords.length
+//     ) {
+//       return res
+//         .status(400)
+//         .json({ message: "Invalid check-in record index." });
+//     }
 
-    // Update the specific check-in record
-    attendance.checkInRecords[recordIndex] = {
-      checkInTime,
-      checkInLocationName,
-      contactNumber,
-    };
+//     // Update the specific check-in record
+//     attendance.checkInRecords[recordIndex] = {
+//       checkInTime,
+//       checkInLocationName,
+//       contactNumber,
+//     };
 
-    // Save the updated attendance
-    await attendance.save();
-    res.status(200).json({ message: "Check-in record updated successfully." });
-  } catch (error) {
-    console.error("Error updating check-in record:", error);
-    res.status(500).json({ message: "Internal server error." });
-  }
-});
+//     // Save the updated attendance
+//     await attendance.save();
+//     res.status(200).json({ message: "Check-in record updated successfully." });
+//   } catch (error) {
+//     console.error("Error updating check-in record:", error);
+//     res.status(500).json({ message: "Internal server error." });
+//   }
+// });
 
 // Update attendance record (check-out)
 router.put("/update-attendance/:id", async (req, res) => {
@@ -215,12 +211,10 @@ router.put("/update-attendance/:id", async (req, res) => {
     const { checkOutTime, checkOutLocationName, contactNumber } = req.body;
 
     if (!checkOutTime || !checkOutLocationName || !contactNumber) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Check-out time, location, and contact number must be provided.",
-        });
+      return res.status(400).json({
+        message:
+          "Check-out time, location, and contact number must be provided.",
+      });
     }
 
     const attendance = await Attendance.findById(req.params.id);
@@ -262,6 +256,41 @@ router.patch("/update-attendance-status/:id", async (req, res) => {
       .json({ message: "Attendance status updated successfully." });
   } catch (error) {
     console.error("Error updating attendance status:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// Update attendance record (check-in)
+router.put("/update-checkin/:id", async (req, res) => {
+  try {
+    const { checkInTime, checkInLocationName, contactNumber } = req.body;
+
+    // Validate that all required fields are provided
+    if (!checkInTime || !checkInLocationName || !contactNumber) {
+      return res.status(400).json({
+        message:
+          "Check-in time, location, and contact number must be provided.",
+      });
+    }
+
+    // Find the attendance record by ID
+    const attendance = await Attendance.findById(req.params.id);
+    if (!attendance) {
+      return res.status(404).json({ message: "Attendance not found" });
+    }
+
+    // Add the new check-in data
+    attendance.checkInRecords.push({
+      checkInTime,
+      checkInLocationName,
+      contactNumber,
+    });
+
+    // Save the updated attendance record
+    await attendance.save();
+    res.status(200).json({ message: "Check-in updated successfully." });
+  } catch (error) {
+    console.error("Error updating check-in:", error);
     res.status(500).json({ message: "Internal server error." });
   }
 });
