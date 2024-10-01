@@ -48,6 +48,7 @@ router.get("/attendance/:id", async (req, res) => {
 router.get("/get-attendances", async (req, res) => {
   try {
     const { location, startDate, endDate } = req.query;
+    console.log("Received query parameters:", { location, startDate, endDate });
 
     let query = {};
 
