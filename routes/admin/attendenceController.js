@@ -48,7 +48,7 @@ router.get("/attendance/:id", async (req, res) => {
 router.get("/get-attendances", async (req, res) => {
   try {
     const { location, startDate, endDate } = req.query;
-    console.log("Received query parameters:", { location, startDate, endDate });
+    // console.log("Received query parameters:", { location, startDate, endDate });
 
     let query = {};
 
@@ -60,7 +60,7 @@ router.get("/get-attendances", async (req, res) => {
     if (startDate && endDate) {
       const start = new Date(startDate);
       const end = new Date(endDate);
-      console.log("Start Date:", start, "End Date:", end); // Log the converted dates
+      // console.log("Start Date:", start, "End Date:", end); // Log the converted dates
       query.date = {
         $gte: start,
         $lte: end,
@@ -71,7 +71,7 @@ router.get("/get-attendances", async (req, res) => {
       .populate("employee", "employeeName employeeIDNumber")
       .populate("location", "locationName address");
 
-    console.log("Attendance records found:", attendances);
+    // console.log("Attendance records found:", attendances);
 
     res.status(200).json({ attendances });
   } catch (error) {
