@@ -58,15 +58,20 @@ router.get("/get-attendances", async (req, res) => {
     }
 
     if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      console.log("Start Date:", start, "End Date:", end); // Log the converted dates
       query.date = {
-        $gte: new Date(startDate), // Greater than or equal to startDate
-        $lte: new Date(endDate), // Less than or equal to endDate
+        $gte: start,
+        $lte: end,
       };
     }
 
     const attendances = await Attendance.find(query)
       .populate("employee", "employeeName employeeIDNumber")
       .populate("location", "locationName address");
+
+    console.log("Attendance records found:", attendances);
 
     res.status(200).json({ attendances });
   } catch (error) {
