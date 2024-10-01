@@ -47,7 +47,16 @@ router.get("/attendance/:id", async (req, res) => {
 
 router.get("/get-attendances", async (req, res) => {
   try {
-    const attendances = await Attendance.find()
+    const { location } = req.query;
+
+    let query = {};
+
+    // If location is provided, add it to the query
+    if (location) {
+      query.location = location; // Filter by location._id
+    }
+
+    const attendances = await Attendance.find(query)
       .populate("employee", "employeeName employeeIDNumber")
       .populate("location", "locationName address");
 
