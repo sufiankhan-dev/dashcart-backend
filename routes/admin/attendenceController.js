@@ -56,6 +56,13 @@ router.get("/get-attendances", async (req, res) => {
       query.location = location; // Filter by location._id
     }
 
+    if (startDate && endDate) {
+      query.date = {
+        $gte: new Date(startDate), // Greater than or equal to startDate
+        $lte: new Date(endDate), // Less than or equal to endDate
+      };
+    }
+
     const attendances = await Attendance.find(query)
       .populate("employee", "employeeName employeeIDNumber")
       .populate("location", "locationName address");
