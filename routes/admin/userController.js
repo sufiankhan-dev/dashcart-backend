@@ -14,7 +14,7 @@ router.get("/get-users", async (req, res) => {
 
     // Fetch users with roles populated, excluding the password field
     const users = await User.find({
-      type: "user",
+      // type: "user",
       status: { $ne: "deleted" },
     })
       .select("-password") // Exclude password
@@ -24,7 +24,7 @@ router.get("/get-users", async (req, res) => {
 
     // Total count of users (excluding deleted ones)
     const total = await User.countDocuments({
-      type: "user",
+      // type: "user",
       status: { $ne: "deleted" },
     });
 
@@ -163,7 +163,7 @@ router.post("/create-user", async (req, res) => {
       dateOfBirth,
       gender,
       password: hashedPassword,
-      role: roleReference._id, 
+      role: roleReference._id,
     });
 
     // Save the new user to the database
@@ -178,10 +178,10 @@ router.post("/create-user", async (req, res) => {
   }
 });
 
-
 router.put("/update-user/:id", async (req, res) => {
   try {
-    const { email, firstName, lastName, phoneNumber1, password, role } = req.body;
+    const { email, firstName, lastName, phoneNumber1, password, role } =
+      req.body;
 
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -224,36 +224,35 @@ router.put("/update-user/:id", async (req, res) => {
 
       // Update the type based on the role
       switch (roleReference.name) {
-        case 'admin':
-          user.type = 'admin';
+        case "admin":
+          user.type = "admin";
           break;
-        case 'super admin':
-          user.type = 'super admin';
+        case "super admin":
+          user.type = "super admin";
           break;
-        case 'time sheet':
-          user.type = 'time sheet';
+        case "time sheet":
+          user.type = "time sheet";
           break;
-        case 'dispatch':
-          user.type = 'dispatch';
+        case "dispatch":
+          user.type = "dispatch";
           break;
         // Add more cases as needed for other roles
         default:
-          user.type = 'user'; // Default type if no match
+          user.type = "user"; // Default type if no match
       }
     }
 
     // Save the updated user
     await user.save();
 
-    return res.status(200).json({ message: "User updated successfully.", user });
+    return res
+      .status(200)
+      .json({ message: "User updated successfully.", user });
   } catch (error) {
     console.error("Error updating user:", error);
     return res.status(500).json({ message: "Internal server error." });
   }
 });
-
-
-
 
 router.delete("/delete-user/:id", async (req, res) => {
   try {
@@ -266,7 +265,7 @@ router.delete("/delete-user/:id", async (req, res) => {
     user.status = "deleted";
 
     // Do not modify the 'role' field, just save the updated status
-    await user.save({ validateBeforeSave: false });  // Disable validation temporarily
+    await user.save({ validateBeforeSave: false }); // Disable validation temporarily
 
     return res.status(200).json({ message: "User deleted successfully." });
   } catch (error) {
@@ -274,10 +273,6 @@ router.delete("/delete-user/:id", async (req, res) => {
     return res.status(500).json({ message: "Internal server error." });
   }
 });
-
-
-
-
 
 router.put("/update-user-status/:id", async (req, res) => {
   try {
@@ -288,7 +283,7 @@ router.put("/update-user-status/:id", async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    
+
     console.log("Current User Status: ", user.status);
 
     // Toggle the user status between 'active' and 'inactive' or set to deleted
@@ -300,17 +295,14 @@ router.put("/update-user-status/:id", async (req, res) => {
     console.log("Updated User Status: ", user.status);
 
     // Send success response
-    res.status(200).json({ message: "User status updated successfully", status: user.status });
+    res.status(200).json({
+      message: "User status updated successfully",
+      status: user.status,
+    });
   } catch (error) {
     console.error("Error updating user status:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
-
-
-
-
-
-
 
 module.exports = router;
