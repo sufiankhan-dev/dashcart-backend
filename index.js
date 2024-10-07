@@ -7,16 +7,16 @@ app.use(bodyParser.json());
 const port = process.env.PORT || 3001;
 cors = require("cors");
 
-app.use(cors(
-  {
+app.use(
+  cors({
     origin: "*",
-    credentials: true
-  }
-));
+    credentials: true,
+  })
+);
 
 app.get("/api", async (req, res) => {
   res.send("Test");
-})
+});
 
 const { connect } = require("./config/Database");
 connect();
@@ -56,7 +56,6 @@ app.use("/api/admin/homepage", adminMiddleware, adminHomepageRoutes);
 const adminConfigRoutes = require("./routes/admin/configController");
 app.use("/api/admin/config", adminMiddleware, adminConfigRoutes);
 
-
 const riderRoutes = require("./routes/admin/riderController");
 app.use("/api/admin/rider", adminMiddleware, riderRoutes);
 
@@ -69,22 +68,14 @@ app.use("/api/admin/locationtype", adminMiddleware, locationtypeRoutes);
 const locationRoutes = require("./routes/admin/locationlistController");
 app.use("/api/admin/location", adminMiddleware, locationRoutes);
 
-
 const attendenceRoutes = require("./routes/admin/attendenceController");
 app.use("/api/admin/attendence", adminMiddleware, attendenceRoutes);
 
 const schedulesRoutes = require("./routes/admin/scheduleeController");
 app.use("/api/admin/schedule", adminMiddleware, schedulesRoutes);
 
-
 const confirmationRoutes = require("./routes/admin/confirmationController");
 app.use("/api/admin/call", adminMiddleware, confirmationRoutes);
-
-
-
-
-
-
 
 // user
 const userMiddleware = require("./middlewares/verifyUser");
@@ -132,12 +123,6 @@ const vendorHomepageRoutes = require("./routes/vendor/websiteController");
 app.use("/api/vendor/homepage", vendorMiddleware, vendorHomepageRoutes);
 
 // Rider
-
-
-
-
-
-
 
 // website
 const homepageRoutes = require("./routes/website/homepageController");
