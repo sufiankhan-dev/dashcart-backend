@@ -35,8 +35,7 @@ app.use("/api/admin/vendor", adminMiddleware, adminVendorRoutes);
 const adminCategoryRoutes = require("./routes/admin/categoryController");
 app.use("/api/admin/category", adminMiddleware, adminCategoryRoutes);
 
-const adminProductRoutes = require("./routes/admin/productController");
-app.use("/api/admin/product", adminMiddleware, adminProductRoutes);
+
 
 const adminDiscountRoutes = require("./routes/admin/discountController");
 app.use("/api/admin/discount", adminMiddleware, adminDiscountRoutes);
@@ -44,8 +43,7 @@ app.use("/api/admin/discount", adminMiddleware, adminDiscountRoutes);
 const adminOrderRoutes = require("./routes/admin/orderController");
 app.use("/api/admin/order", adminMiddleware, adminOrderRoutes);
 
-const adminBrandRoutes = require("./routes/admin/brandController");
-app.use("/api/admin/brand", adminMiddleware, adminBrandRoutes);
+
 
 const adminRoleRoutes = require("./routes/admin/roleController");
 app.use("/api/admin/role", adminMiddleware, adminRoleRoutes);
@@ -98,14 +96,12 @@ app.use("/api/user", userMiddleware, userUserRoutes);
 const userCategoryRoutes = require("./routes/user/categoryController");
 app.use("/api/category", userCategoryRoutes);
 
-const userProductRoutes = require("./routes/user/productController");
-app.use("/api/product", userProductRoutes);
+
 
 const userOrderRoutes = require("./routes/user/orderController");
 app.use("/api/order", userMiddleware, userOrderRoutes);
 
-const userBrandRoutes = require("./routes/user/brandController");
-app.use("/api/brand", userBrandRoutes);
+
 
 const userVendorRoutes = require("./routes/user/vendorController");
 app.use("/api/vendor", userVendorRoutes);
@@ -122,8 +118,7 @@ const vendorMiddleware = require("./middlewares/verifyVendor");
 const vendorRegisterRoutes = require("./routes/vendor/signupController");
 app.use("/api/vendor/register", vendorRegisterRoutes);
 
-const vendorProductRoutes = require("./routes/vendor/productController");
-app.use("/api/vendor/product", vendorMiddleware, vendorProductRoutes);
+
 
 const vendorOrderRoutes = require("./routes/vendor/orderController");
 app.use("/api/vendor/order", vendorMiddleware, vendorOrderRoutes);
@@ -131,7 +126,7 @@ app.use("/api/vendor/order", vendorMiddleware, vendorOrderRoutes);
 const vendorHomepageRoutes = require("./routes/vendor/websiteController");
 app.use("/api/vendor/homepage", vendorMiddleware, vendorHomepageRoutes);
 
-// Rider
+// 
 
 
 
