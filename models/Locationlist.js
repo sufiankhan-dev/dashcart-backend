@@ -56,24 +56,24 @@ const LocationSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  userList: [
-    {
-      type: mongoose.Schema.Types.ObjectId, // Reference to User model
-      ref: "User",
-      required: true,
-    },
-  ],
+  // userList: [
+  //   {
+  //     type: mongoose.Schema.Types.ObjectId, // Reference to User model
+  //     ref: "User",
+  //     required: true,
+  //   },
+  // ],
   timeZone: {
     type: String,
     required: true,
   },
-  employees: [
-    {
-      // Ensure this is defined
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Employee", // Reference to Employee model
-    },
-  ],
+  // employees: [
+  //   {
+  //     // Ensure this is defined
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     ref: "Employee", // Reference to Employee model
+  //   },
+  // ],
   locationType: {
     type: mongoose.Schema.Types.ObjectId, // Reference to LocationType model
     ref: "LocationType",
