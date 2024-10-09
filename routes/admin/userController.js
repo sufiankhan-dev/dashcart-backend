@@ -214,32 +214,14 @@ router.put("/update-user/:id", async (req, res) => {
       user.password = bcrypt.hashSync(password, 10);
     }
 
-    // Update role if provided
+    // Update role if provided without changing the type
     if (role) {
       const roleReference = await Role.findById(role);
       if (!roleReference) {
         return res.status(400).json({ message: "Invalid role ID." });
       }
       user.role = roleReference._id;
-
-      // Update the type based on the role
-      switch (roleReference.name) {
-        case "admin":
-          user.type = "admin";
-          break;
-        case "super admin":
-          user.type = "super admin";
-          break;
-        case "time sheet":
-          user.type = "time sheet";
-          break;
-        case "dispatch":
-          user.type = "dispatch";
-          break;
-        // Add more cases as needed for other roles
-        default:
-          user.type = "user"; // Default type if no match
-      }
+      // Removed the code that sets user.type based on the role
     }
 
     // Save the updated user
