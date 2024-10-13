@@ -66,7 +66,7 @@ router.post("/create-user", async (req, res) => {
       firstName, // First Name
       lastName, // Last Name
       middleName, // Middle Name (optional)
-      phoneNumber1, // Phone Number 1
+      phoneNumber1, // Phone Number 1 (optional)
       phoneNumber2, // Phone Number 2 (optional)
       email, // Primary Email
       secondaryEmail, // Secondary Email (optional)
@@ -84,7 +84,7 @@ router.post("/create-user", async (req, res) => {
       city,
       firstName,
       lastName,
-      phoneNumber1,
+      // phoneNumber1,
       email,
       dateOfBirth,
       gender,
@@ -113,12 +113,13 @@ router.post("/create-user", async (req, res) => {
         .json({ message: "User with this email already exists." });
     }
 
-    // Check if phone number is unique
-    const phoneExists = await User.findOne({ phoneNumber1 });
-    if (phoneExists) {
-      return res.status(400).json({
-        message: "Phone number is already associated with another account.",
-      });
+    if (phoneNumber1) {
+      const phoneExists = await User.findOne({ phoneNumber1 });
+      if (phoneExists) {
+        return res.status(400).json({
+          message: "Phone number is already associated with another account.",
+        });
+      }
     }
 
     // Check if the date of birth is in a valid format

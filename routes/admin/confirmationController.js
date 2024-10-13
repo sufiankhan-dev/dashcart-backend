@@ -94,6 +94,8 @@ router.put("/add-calling-time/:id", async (req, res) => {
 router.put("/change-call-status/:id", async (req, res) => {
   const { status } = req.body;
 
+  console.log("Received ID:", req.params.id);
+
   if (!["active", "inactive"].includes(status)) {
     return res
       .status(400)
@@ -106,6 +108,8 @@ router.put("/change-call-status/:id", async (req, res) => {
       return res.status(404).json({ message: "Confirmation call not found." });
     }
 
+    console.log("Received ID:", req.params.id);
+
     confirmationCall.status = status;
     await confirmationCall.save();
 
@@ -114,7 +118,7 @@ router.put("/change-call-status/:id", async (req, res) => {
       status: confirmationCall.status,
     });
   } catch (error) {
-    console.error("Error updating confirmation call status:", error);
+    console.error("Error updating confirmation call status:", error.message);
     res.status(500).json({ message: "Internal server error." });
   }
 });
