@@ -35,8 +35,8 @@ module.exports = async (req, res, next) => {
     let user = await User.findById(verified._id);
     if (!user) return res.status(400).send({ message: "Invalid Token" });
     req.user = user;
-    if (user.status !== "active")
-      return res.status(400).send({ message: "User is not active" });
+    // if (user.status !== "active")
+    //   return res.status(400).send({ message: "User is not active" });
 
     // Removed `user.type` check to allow all active users access
     next();

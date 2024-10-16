@@ -18,14 +18,7 @@ router.post("/create-location", async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (
-      !locationName ||
-      !address ||
-      !timeZone ||
-      !locationType ||
-      !schedule ||
-      !clientDetails
-    ) {
+    if (!locationName || !address || !timeZone || !locationType || !schedule) {
       return res.status(400).json({ message: "Required fields are missing." });
     }
 
@@ -111,6 +104,15 @@ router.put("/update-location/:id", async (req, res) => {
       return res.status(400).json({ message: "Required fields are missing." });
     }
 
+    // Map through the schedule to ensure correct structure
+    const formattedSchedule = schedule.map((daySchedule) => ({
+      day: daySchedule.day,
+      intervals: daySchedule.intervals.map((interval) => ({
+        startTime: interval.startTime,
+        endTime: interval.endTime,
+      })),
+    }));
+
     // Find the location by ID and update it
     const updatedLocation = await Location.findByIdAndUpdate(
       req.params.id,
@@ -121,7 +123,7 @@ router.put("/update-location/:id", async (req, res) => {
         timeZone,
         locationType,
         parentLocation,
-        schedule,
+        schedule: formattedSchedule, // Save the formatted schedule
         clientDetails,
       },
       { new: true, runValidators: true }

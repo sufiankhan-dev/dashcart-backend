@@ -5,18 +5,17 @@ const Employee = require("../../models/Employe");
 const Location = require("../../models/Locationlist");
 
 router.post("/add-confirmation-call", async (req, res) => {
-  const { employeeId, locationId, callingTimes, notes } = req.body; // Note the change here
+  const { employeeId, locationId, notes } = req.body; // Note the change here
 
   if (
     !employeeId ||
-    !locationId ||
-    !callingTimes ||
-    !Array.isArray(callingTimes) ||
-    callingTimes.length === 0
+    !locationId
+    // !callingTimes ||
+    // !Array.isArray(callingTimes) ||
+    // callingTimes.length === 0
   ) {
     return res.status(400).json({
-      message:
-        "Employee, location, and at least one calling time are required.",
+      message: "Employee, location, least one calling time are required.",
     });
   }
 
@@ -46,6 +45,48 @@ router.post("/add-confirmation-call", async (req, res) => {
     res.status(500).json({ message: "Internal server error." });
   }
 });
+
+// router.post("/add-confirmation-call", async (req, res) => {
+//   const { employeeId, locationId, notes, callingTimes } = req.body;
+
+//   // Validate employeeId and locationId
+//   if (!employeeId || !locationId) {
+//     return res.status(400).json({
+//       message: "Employee and location are required.",
+//     });
+//   }
+
+//   try {
+//     // Check if the employee exists
+//     const employee = await Employee.findById(employeeId);
+//     if (!employee) {
+//       return res.status(404).json({ message: "Employee not found." });
+//     }
+
+//     // Check if the location exists
+//     const location = await Location.findById(locationId);
+//     if (!location) {
+//       return res.status(404).json({ message: "Location not found." });
+//     }
+
+//     // Create a new ConfirmationCall instance
+//     const newConfirmationCall = new ConfirmationCall({
+//       employee: employeeId,
+//       location: locationId,
+//       callingTimes: callingTimes || [], // Use an empty array if callingTimes is undefined
+//       notes, // Accept notes, but no validation
+//     });
+
+//     await newConfirmationCall.save();
+//     res.status(201).json({
+//       message: "Confirmation call added successfully.",
+//       confirmationCall: newConfirmationCall,
+//     });
+//   } catch (error) {
+//     console.error("Error adding confirmation call:", error);
+//     res.status(500).json({ message: "Internal server error." });
+//   }
+// });
 
 router.get("/get-confirmation-calls", async (req, res) => {
   try {

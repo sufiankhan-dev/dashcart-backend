@@ -107,6 +107,7 @@ router.post("/create-employee", async (req, res) => {
   try {
     const {
       employeeName,
+      employeeLastName,
       employeeAddress,
       employeeIDNumber,
       contactNumber1,
@@ -126,6 +127,7 @@ router.post("/create-employee", async (req, res) => {
     // Create new employee instance without requiring any mandatory fields
     const newEmployee = new Employee({
       employeeName,
+      employeeLastName,
       employeeAddress,
       employeeIDNumber,
       contactNumber1,
@@ -156,6 +158,7 @@ router.put("/update-employee/:id", async (req, res) => {
   const employeeId = req.params.id;
   const {
     employeeName,
+    employeeLastName,
     employeeAddress,
     contactNumber1,
     employeeIDNumber,
@@ -178,6 +181,7 @@ router.put("/update-employee/:id", async (req, res) => {
 
     // Update employee fields
     employee.employeeName = employeeName || employee.employeeName;
+    employee.employeeLastName = employeeLastName || employee.employeeLastName;
     employee.employeeAddress = employeeAddress || employee.employeeAddress;
     employee.contactNumber1 = contactNumber1 || employee.contactNumber1;
     employee.employeeIDNumber = employeeIDNumber || employee.employeeIDNumber;

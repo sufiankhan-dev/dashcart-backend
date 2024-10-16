@@ -4,6 +4,9 @@ const EmployeeSchema = new mongoose.Schema({
   employeeName: {
     type: String,
   },
+  employeeLastName: {
+    type: String,
+  },
   employeeAddress: {
     type: String,
   },
