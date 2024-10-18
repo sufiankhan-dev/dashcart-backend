@@ -80,6 +80,11 @@ app.use("/api/admin/schedule", adminMiddleware, schedulesRoutes);
 const confirmationRoutes = require("./routes/admin/confirmationController");
 app.use("/api/admin/call", adminMiddleware, confirmationRoutes);
 
+const shipmentRoutes = require("./routes/admin/ShipmentController");
+app.use("/api/admin/shipmentform", shipmentRoutes);
+
+
+
 
 
 
@@ -115,6 +120,8 @@ app.use("/api/review", userMiddleware, userReviewRoutes);
 
 const userDiscountRoutes = require("./routes/user/discountController");
 app.use("/api/discount", userDiscountRoutes);
+const usershipmentRoutes = require("./routes/user/shipmentController");
+app.use("/api/user/shipmentform", userMiddleware, usershipmentRoutes);
 
 // vendor
 const vendorMiddleware = require("./middlewares/verifyVendor");
@@ -130,6 +137,9 @@ app.use("/api/vendor/order", vendorMiddleware, vendorOrderRoutes);
 
 const vendorHomepageRoutes = require("./routes/vendor/websiteController");
 app.use("/api/vendor/homepage", vendorMiddleware, vendorHomepageRoutes);
+
+
+
 
 // Rider
 
