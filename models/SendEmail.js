@@ -2,12 +2,11 @@
 const nodemailer = require("nodemailer");
 
 const sendEmail = async (email, otp) => {
-  // Configure your email provider
   let transporter = nodemailer.createTransport({
-    service: "Gmail", // Use your email provider here (e.g., Gmail, Mailgun)
+    service: "Gmail", 
     auth: {
-      user: process.env.EMAIL, // Your email
-      pass: process.env.PASSWORD, // Your email password
+      user: process.env.EMAIL, 
+      pass: process.env.PASSWORD, 
     },
   });
 

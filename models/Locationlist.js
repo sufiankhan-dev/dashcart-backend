@@ -32,6 +32,11 @@ const ClientDetailsSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  customerNo:{
+    type:String,
+    required:false
+
+},
   designation: {
     type: String,
     required: true,

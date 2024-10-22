@@ -22,6 +22,8 @@ const EmployeeSchema = new mongoose.Schema({
         type: String,
         required: false,  
     },
+
+    
     employeeCategory: {
         type: String,
         enum: ["Shack", "Regular"],
