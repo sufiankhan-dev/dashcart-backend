@@ -1,6 +1,32 @@
 const mongoose = require("mongoose");
 
 // Schema for schedule timings (days and start/end times)
+// const ScheduleSchema = new mongoose.Schema({
+//   day: {
+//     type: String,
+//     enum: [
+//       "Monday",
+//       "Tuesday",
+//       "Wednesday",
+//       "Thursday",
+//       "Friday",
+//       "Saturday",
+//       "Sunday",
+//     ],
+//     required: true,
+//   },
+//   startTime: {
+//     type: String, // You can also use Date if you want to manage timezones properly
+//     required: true,
+//   },
+//   endTime: {
+//     //end time of the schedule
+//     type: String,
+//     required: true,
+//   },
+// });
+
+// Schema for a specific day with start and end time
 const ScheduleSchema = new mongoose.Schema({
   day: {
     type: String,
@@ -15,22 +41,24 @@ const ScheduleSchema = new mongoose.Schema({
     ],
     required: true,
   },
-  startTime: {
-    type: String, // You can also use Date if you want to manage timezones properly
-    required: true,
-  },
-  endTime: {
-    //end time of the schedule
-    type: String,
-    required: true,
-  },
+  intervals: [
+    {
+      startTime: {
+        type: String, // Storing time as a string, you can modify to Date if necessary
+        required: true,
+      },
+      endTime: {
+        type: String, // End time of the schedule
+        required: true,
+      },
+    },
+  ],
 });
 
 // Schema for client detailss
 const ClientDetailsSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
   },
   customerNo:{
     type:String,
@@ -39,15 +67,12 @@ const ClientDetailsSchema = new mongoose.Schema({
 },
   designation: {
     type: String,
-    required: true,
   },
   email: {
     type: String,
-    required: true,
   },
   phone: {
     type: String,
-    required: true,
   },
 });
 

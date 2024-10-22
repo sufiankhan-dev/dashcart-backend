@@ -4,14 +4,64 @@ const ConfirmationCall = require("../../models/Confirmationcall");
 const Employee = require("../../models/Employe");
 const Location = require("../../models/Locationlist");
 
-router.post("/add-confirmation-call", async (req, res) => {
-  const { employeeId, locationId, callingTime, notes } = req.body;
+// router.post("/add-confirmation-call", async (req, res) => {
+//   const { employeeId, locationId, notes, callingTimes } = req.body; // Note the change here
 
-  if (!employeeId || !locationId || !callingTime) {
-    return res
-      .status(400)
-      .json({ message: "Employee, location, and calling time are required." });
+//   if (
+//     !employeeId ||
+//     !locationId
+//     // !callingTimes ||
+//     // !Array.isArray(callingTimes) ||
+//     // callingTimes.length === 0
+//   ) {
+//     return res.status(400).json({
+//       message: "Employee, location, least one calling time are required.",
+//     });
+//   }
+
+//   try {
+//     const employee = await Employee.findById(employeeId);
+//     const location = await Location.findById(locationId);
+
+//     if (!employee)
+//       return res.status(404).json({ message: "Employee not found." });
+//     if (!location)
+//       return res.status(404).json({ message: "Location not found." });
+
+//     const newConfirmationCall = new ConfirmationCall({
+//       employee: employeeId,
+//       location: locationId,
+//       callingTimes, // Store the array of calling times
+//       notes,
+//     });
+
+//     await newConfirmationCall.save();
+//     res.status(201).json({
+//       message: "Confirmation call added successfully.",
+//       confirmationCall: newConfirmationCall,
+//     });
+//   } catch (error) {
+//     console.error("Error adding confirmation call:", error);
+//     res.status(500).json({ message: "Internal server error." });
+//   }
+// });
+
+router.post("/add-confirmation-call", async (req, res) => {
+  const { employeeId, locationId, notes, callingTimes = [] } = req.body; // Ensure callingTimes is included
+
+  // Validate employeeId and locationId only
+  if (!employeeId || !locationId) {
+    return res.status(400).json({
+      message: "Employee and location are required.",
+    });
   }
+
+  console.log("Incoming data:", {
+    employeeId,
+    locationId,
+    notes,
+    callingTimes,
+  });
 
   try {
     const employee = await Employee.findById(employeeId);
@@ -25,17 +75,15 @@ router.post("/add-confirmation-call", async (req, res) => {
     const newConfirmationCall = new ConfirmationCall({
       employee: employeeId,
       location: locationId,
-      callingTime,
+      callingTimes, // Send callingTimes as an empty array if not provided
       notes,
     });
 
     await newConfirmationCall.save();
-    res
-      .status(201)
-      .json({
-        message: "Confirmation call added successfully.",
-        confirmationCall: newConfirmationCall,
-      });
+    res.status(201).json({
+      message: "Confirmation call added successfully.",
+      confirmationCall: newConfirmationCall,
+    });
   } catch (error) {
     console.error("Error adding confirmation call:", error);
     res.status(500).json({ message: "Internal server error." });
@@ -45,10 +93,8 @@ router.post("/add-confirmation-call", async (req, res) => {
 router.get("/get-confirmation-calls", async (req, res) => {
   try {
     const confirmationCalls = await ConfirmationCall.find()
-      .populate("employee", "employeeName lastName") // Adjust fields as necessary
-      .populate("location", "locationName address"); // Adjust fields as necessary
-
-    console.log("Fetched confirmation calls:", confirmationCalls);
+      .populate("employee", "employeeName lastName")
+      .populate("location", "locationName address");
 
     if (confirmationCalls.length === 0) {
       return res.status(404).json({ message: "No confirmation calls found." });
@@ -61,8 +107,37 @@ router.get("/get-confirmation-calls", async (req, res) => {
   }
 });
 
+router.put("/add-calling-time/:id", async (req, res) => {
+  const { callingTime } = req.body;
+
+  if (!callingTime) {
+    return res.status(400).json({ message: "Calling time is required." });
+  }
+
+  try {
+    const confirmationCall = await ConfirmationCall.findById(req.params.id);
+    if (!confirmationCall) {
+      return res.status(404).json({ message: "Confirmation call not found." });
+    }
+
+    // Add the new calling time to the array
+    confirmationCall.callingTimes.push(callingTime);
+    await confirmationCall.save();
+
+    res.status(200).json({
+      message: "Calling time added successfully.",
+      confirmationCall,
+    });
+  } catch (error) {
+    console.error("Error adding calling time:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 router.put("/change-call-status/:id", async (req, res) => {
   const { status } = req.body;
+
+  console.log("Received ID:", req.params.id);
 
   if (!["active", "inactive"].includes(status)) {
     return res
@@ -76,17 +151,17 @@ router.put("/change-call-status/:id", async (req, res) => {
       return res.status(404).json({ message: "Confirmation call not found." });
     }
 
+    console.log("Received ID:", req.params.id);
+
     confirmationCall.status = status;
     await confirmationCall.save();
 
-    res
-      .status(200)
-      .json({
-        message: "Confirmation call status updated successfully.",
-        status: confirmationCall.status,
-      });
+    res.status(200).json({
+      message: "Confirmation call status updated successfully.",
+      status: confirmationCall.status,
+    });
   } catch (error) {
-    console.error("Error updating confirmation call status:", error);
+    console.error("Error updating confirmation call status:", error.message);
     res.status(500).json({ message: "Internal server error." });
   }
 });

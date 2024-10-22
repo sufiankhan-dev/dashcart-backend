@@ -67,7 +67,7 @@ router.post("/create-user", async (req, res) => {
       firstName, // First Name
       lastName, // Last Name
       middleName, // Middle Name (optional)
-      phoneNumber1, // Phone Number 1
+      phoneNumber1, // Phone Number 1 (optional)
       phoneNumber2, // Phone Number 2 (optional)
       email, // Primary Email
       secondaryEmail, // Secondary Email (optional)
@@ -85,7 +85,7 @@ router.post("/create-user", async (req, res) => {
       city,
       firstName,
       lastName,
-      phoneNumber1,
+      // phoneNumber1,
       email,
       dateOfBirth,
       gender,
@@ -114,12 +114,13 @@ router.post("/create-user", async (req, res) => {
         .json({ message: "User with this email already exists." });
     }
 
-    // Check if phone number is unique
-    const phoneExists = await User.findOne({ phoneNumber1 });
-    if (phoneExists) {
-      return res.status(400).json({
-        message: "Phone number is already associated with another account.",
-      });
+    if (phoneNumber1) {
+      const phoneExists = await User.findOne({ phoneNumber1 });
+      if (phoneExists) {
+        return res.status(400).json({
+          message: "Phone number is already associated with another account.",
+        });
+      }
     }
 
     // Check if the date of birth is in a valid format
@@ -215,32 +216,14 @@ router.put("/update-user/:id", async (req, res) => {
       user.password = bcrypt.hashSync(password, 10);
     }
 
-    // Update role if provided
+    // Update role if provided without changing the type
     if (role) {
       const roleReference = await Role.findById(role);
       if (!roleReference) {
         return res.status(400).json({ message: "Invalid role ID." });
       }
       user.role = roleReference._id;
-
-      // Update the type based on the role
-      switch (roleReference.name) {
-        case "admin":
-          user.type = "admin";
-          break;
-        case "super admin":
-          user.type = "super admin";
-          break;
-        case "time sheet":
-          user.type = "time sheet";
-          break;
-        case "dispatch":
-          user.type = "dispatch";
-          break;
-        // Add more cases as needed for other roles
-        default:
-          user.type = "user"; // Default type if no match
-      }
+      // Removed the code that sets user.type based on the role
     }
 
     // Save the updated user

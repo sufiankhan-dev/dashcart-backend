@@ -40,11 +40,76 @@ router.get("/get-employees/:id", async (req, res) => {
 });
 
 // Create a new employee
+// router.post("/create-employee", async (req, res) => {
+//   try {
+//     const {
+//       employeeName,
+//       employeeAddress,
+//       contactNumber1,
+//       contactNumber2, // optional
+//       employeeCategory,
+//       guardCardNumber,
+//       issueDate,
+//       expiryDate,
+//       payRate,
+//       managerName,
+//       notes, // optional
+//       approved,
+//       salarystatus, // optional
+//       status, // optional
+//     } = req.body;
+
+//     // Validate required fields
+//     if (
+//       !employeeName ||
+//       !employeeAddress ||
+//       !contactNumber1 ||
+//       !employeeCategory ||
+//       !guardCardNumber ||
+//       !issueDate ||
+//       !expiryDate ||
+//       !payRate ||
+//       !managerName
+//     ) {
+//       return res
+//         .status(400)
+//         .json({ message: "All required fields must be filled." });
+//     }
+
+//     // Create new employee instance
+//     const newEmployee = new Employee({
+//       employeeName,
+//       employeeAddress,
+//       contactNumber1,
+//       contactNumber2, // optional
+//       employeeCategory,
+//       guardCardNumber,
+//       issueDate,
+//       expiryDate,
+//       payRate,
+//       managerName,
+//       notes, // optional
+//       approved,
+//       salarystatus, // defaults to false
+//       status, // defaults to "active"
+//     });
+
+//     // Save the new employee to the database
+//     await newEmployee.save();
+//     return res.status(201).json({ message: "Employee created successfully." });
+//   } catch (error) {
+//     console.error("Error creating employee:", error);
+//     return res.status(500).json({ message: "Internal server error." });
+//   }
+// });
+
 router.post("/create-employee", async (req, res) => {
   try {
     const {
       employeeName,
+      employeeLastName,
       employeeAddress,
+      employeeIDNumber,
       contactNumber1,
       contactNumber2, // optional
       employeeCategory,
@@ -59,39 +124,24 @@ router.post("/create-employee", async (req, res) => {
       status, // optional
     } = req.body;
 
-    // Validate required fields
-    if (
-      !employeeName ||
-      !employeeAddress ||
-      !contactNumber1 ||
-      !employeeCategory ||
-      !guardCardNumber ||
-      !issueDate ||
-      !expiryDate ||
-      !payRate ||
-      !managerName
-    ) {
-      return res
-        .status(400)
-        .json({ message: "All required fields must be filled." });
-    }
-
-    // Create new employee instance
+    // Create new employee instance without requiring any mandatory fields
     const newEmployee = new Employee({
       employeeName,
+      employeeLastName,
       employeeAddress,
+      employeeIDNumber,
       contactNumber1,
-      contactNumber2, // optional
+      contactNumber2,
       employeeCategory,
       guardCardNumber,
       issueDate,
       expiryDate,
       payRate,
       managerName,
-      notes, // optional
+      notes,
       approved,
-      salarystatus, // defaults to false
-      status, // defaults to "active"
+      salarystatus: salarystatus || false, // default to false if not provided
+      status: status || "active", // default to "active" if not provided
     });
 
     // Save the new employee to the database
@@ -108,6 +158,7 @@ router.put("/update-employee/:id", async (req, res) => {
   const employeeId = req.params.id;
   const {
     employeeName,
+    employeeLastName,
     employeeAddress,
     contactNumber1,
     employeeIDNumber,
@@ -130,6 +181,7 @@ router.put("/update-employee/:id", async (req, res) => {
 
     // Update employee fields
     employee.employeeName = employeeName || employee.employeeName;
+    employee.employeeLastName = employeeLastName || employee.employeeLastName;
     employee.employeeAddress = employeeAddress || employee.employeeAddress;
     employee.contactNumber1 = contactNumber1 || employee.contactNumber1;
     employee.employeeIDNumber = employeeIDNumber || employee.employeeIDNumber;
@@ -170,12 +222,10 @@ router.put("/change-salarystatus/:id", async (req, res) => {
     await employee.save();
 
     // Respond with success
-    res
-      .status(200)
-      .json({
-        message: "Employee salary status updated successfully",
-        salarystatus: employee.salarystatus,
-      });
+    res.status(200).json({
+      message: "Employee salary status updated successfully",
+      salarystatus: employee.salarystatus,
+    });
   } catch (error) {
     console.error("Error updating salary status:", error);
     res.status(500).json({ message: "Internal server error" });
