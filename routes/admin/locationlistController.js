@@ -8,6 +8,7 @@ router.post("/create-location", async (req, res) => {
   try {
     const {
       locationName,
+      customerNo,
       address,
       // userList,
       timeZone,
@@ -25,6 +26,7 @@ router.post("/create-location", async (req, res) => {
     // Create a new Location instance
     const newLocation = new Location({
       locationName,
+      customerNo,
       address,
       // userList,
       timeZone,

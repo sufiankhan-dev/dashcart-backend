@@ -60,11 +60,7 @@ const ClientDetailsSchema = new mongoose.Schema({
   name: {
     type: String,
   },
-  customerNo:{
-    type:String,
-    required:false
-
-},
+ 
   designation: {
     type: String,
   },
@@ -78,6 +74,11 @@ const ClientDetailsSchema = new mongoose.Schema({
 
 // Main Location schema
 const LocationSchema = new mongoose.Schema({
+  customerNo:{
+    type:String,
+    required:false
+
+},
   locationName: {
     type: String,
     required: true,
