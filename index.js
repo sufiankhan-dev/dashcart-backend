@@ -35,15 +35,11 @@ app.use("/api/admin/vendor", adminMiddleware, adminVendorRoutes);
 const adminCategoryRoutes = require("./routes/admin/categoryController");
 app.use("/api/admin/category", adminMiddleware, adminCategoryRoutes);
 
-
-
 const adminDiscountRoutes = require("./routes/admin/discountController");
 app.use("/api/admin/discount", adminMiddleware, adminDiscountRoutes);
 
 const adminOrderRoutes = require("./routes/admin/orderController");
 app.use("/api/admin/order", adminMiddleware, adminOrderRoutes);
-
-
 
 const adminRoleRoutes = require("./routes/admin/roleController");
 app.use("/api/admin/role", adminMiddleware, adminRoleRoutes);
@@ -72,6 +68,9 @@ app.use("/api/admin/attendence", adminMiddleware, attendenceRoutes);
 const schedulesRoutes = require("./routes/admin/scheduleeController");
 app.use("/api/admin/schedule", adminMiddleware, schedulesRoutes);
 
+const EventsRoutes = require("./routes/admin/eventcontroller");
+app.use("/api/admin/event", adminMiddleware, EventsRoutes);
+
 const confirmationRoutes = require("./routes/admin/confirmationController");
 app.use("/api/admin/call", adminMiddleware, confirmationRoutes);
 
@@ -87,12 +86,8 @@ app.use("/api/user", userMiddleware, userUserRoutes);
 const userCategoryRoutes = require("./routes/user/categoryController");
 app.use("/api/category", userCategoryRoutes);
 
-
-
 const userOrderRoutes = require("./routes/user/orderController");
 app.use("/api/order", userMiddleware, userOrderRoutes);
-
-
 
 const userVendorRoutes = require("./routes/user/vendorController");
 app.use("/api/vendor", userVendorRoutes);
@@ -109,15 +104,13 @@ const vendorMiddleware = require("./middlewares/verifyVendor");
 const vendorRegisterRoutes = require("./routes/vendor/signupController");
 app.use("/api/vendor/register", vendorRegisterRoutes);
 
-
-
 const vendorOrderRoutes = require("./routes/vendor/orderController");
 app.use("/api/vendor/order", vendorMiddleware, vendorOrderRoutes);
 
 const vendorHomepageRoutes = require("./routes/vendor/websiteController");
 app.use("/api/vendor/homepage", vendorMiddleware, vendorHomepageRoutes);
 
-// 
+//
 
 // website
 const homepageRoutes = require("./routes/website/homepageController");
