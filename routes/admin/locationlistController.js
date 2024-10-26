@@ -69,7 +69,6 @@ router.get("/get-locations", async (req, res) => {
 router.get("/get-location/:id", async (req, res) => {
   try {
     const location = await Location.findById(req.params.id)
-      .populate("userList")
       .populate("timeZone")
       .populate("locationType");
     if (!location)
@@ -86,7 +85,7 @@ router.put("/update-location/:id", async (req, res) => {
     const {
       locationName,
       address,
-      userList,
+      userList,       // No longer required
       timeZone,
       locationType,
       parentLocation,
@@ -94,41 +93,30 @@ router.put("/update-location/:id", async (req, res) => {
       clientDetails,
     } = req.body;
 
-    // Validate required fields
-    if (
-      !locationName ||
-      !address ||
-      !userList ||
-      !timeZone ||
-      !locationType ||
-      !schedule ||
-      !clientDetails
-    ) {
-      return res.status(400).json({ message: "Required fields are missing." });
-    }
-
-    // Map through the schedule to ensure correct structure
-    const formattedSchedule = schedule.map((daySchedule) => ({
-      day: daySchedule.day,
-      intervals: daySchedule.intervals.map((interval) => ({
-        startTime: interval.startTime,
-        endTime: interval.endTime,
-      })),
-    }));
+    // We are not validating required fields anymore
+    // If you still want to handle cases where the fields might be missing,
+    // you can assign default values or handle them appropriately
+    const updateData = {
+      locationName: locationName || undefined, // Use undefined if not provided
+      address: address || undefined,
+      userList: userList || [], // Default to an empty array if not provided
+      timeZone: timeZone || undefined,
+      locationType: locationType || undefined,
+      parentLocation: parentLocation || undefined,
+      schedule: schedule ? schedule.map((daySchedule) => ({
+        day: daySchedule.day,
+        intervals: daySchedule.intervals.map((interval) => ({
+          startTime: interval.startTime,
+          endTime: interval.endTime,
+        })),
+      })) : [], // Default to an empty array if schedule is not provided
+      clientDetails: clientDetails || [], // Default to an empty array if not provided
+    };
 
     // Find the location by ID and update it
     const updatedLocation = await Location.findByIdAndUpdate(
       req.params.id,
-      {
-        locationName,
-        address,
-        userList,
-        timeZone,
-        locationType,
-        parentLocation,
-        schedule: formattedSchedule, // Save the formatted schedule
-        clientDetails,
-      },
+      updateData,
       { new: true, runValidators: true }
     );
 
@@ -144,6 +132,7 @@ router.put("/update-location/:id", async (req, res) => {
     return res.status(500).json({ message: "Internal server error." });
   }
 });
+
 
 router.delete("/delete-location/:id", async (req, res) => {
   try {
