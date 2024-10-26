@@ -60,7 +60,7 @@ const ClientDetailsSchema = new mongoose.Schema({
   name: {
     type: String,
   },
- 
+
   designation: {
     type: String,
   },
@@ -74,11 +74,10 @@ const ClientDetailsSchema = new mongoose.Schema({
 
 // Main Location schema
 const LocationSchema = new mongoose.Schema({
-  customerNo:{
-    type:String,
-    required:false
-
-},
+  customerNo: {
+    type: String,
+    required: false,
+  },
   locationName: {
     type: String,
     required: true,
@@ -105,10 +104,17 @@ const LocationSchema = new mongoose.Schema({
   //     ref: "Employee", // Reference to Employee model
   //   },
   // ],
+  // locationType: {
+  //   type: mongoose.Schema.Types.ObjectId, // Reference to LocationType model
+  //   ref: "LocationType",
+  // },
+  locationTypeName: {
+    type: String, // Reference to LocationType model
+    // ref: "LocationType",
+  },
   locationType: {
-    type: mongoose.Schema.Types.ObjectId, // Reference to LocationType model
-    ref: "LocationType",
-    required: true,
+    type: String, // Reference to LocationType model
+    // ref: "LocationType",
   },
 
   schedule: [ScheduleSchema], // Array of schedule objects

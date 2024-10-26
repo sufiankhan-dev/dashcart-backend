@@ -11,9 +11,10 @@ const EventSchema = new mongoose.Schema({
     required: true,
   },
   assignedEmployee: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Employee", // Reference to Employee model
-    required: true,
+    // type: mongoose.Schema.Types.ObjectId,
+    // ref: "Employee", // Reference to Employee model
+    type: String,
+    // required: true,
   },
 });
 
