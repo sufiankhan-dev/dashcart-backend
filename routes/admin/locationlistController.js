@@ -87,9 +87,11 @@ router.put("/update-location/:id", async (req, res) => {
     const {
       locationName,
       address,
-      userList,       // No longer required
+      customerNo,
+      userList, // No longer required
       timeZone,
       locationType,
+      locationTypeName,
       parentLocation,
       schedule,
       clientDetails,
@@ -101,17 +103,21 @@ router.put("/update-location/:id", async (req, res) => {
     const updateData = {
       locationName: locationName || undefined, // Use undefined if not provided
       address: address || undefined,
+      customerNo: customerNo || undefined,
       userList: userList || [], // Default to an empty array if not provided
       timeZone: timeZone || undefined,
+      locationTypeName: locationTypeName || undefined,
       locationType: locationType || undefined,
       parentLocation: parentLocation || undefined,
-      schedule: schedule ? schedule.map((daySchedule) => ({
-        day: daySchedule.day,
-        intervals: daySchedule.intervals.map((interval) => ({
-          startTime: interval.startTime,
-          endTime: interval.endTime,
-        })),
-      })) : [], // Default to an empty array if schedule is not provided
+      schedule: schedule
+        ? schedule.map((daySchedule) => ({
+            day: daySchedule.day,
+            intervals: daySchedule.intervals.map((interval) => ({
+              startTime: interval.startTime,
+              endTime: interval.endTime,
+            })),
+          }))
+        : [], // Default to an empty array if schedule is not provided
       clientDetails: clientDetails || [], // Default to an empty array if not provided
     };
 
@@ -134,7 +140,6 @@ router.put("/update-location/:id", async (req, res) => {
     return res.status(500).json({ message: "Internal server error." });
   }
 });
-
 
 router.delete("/delete-location/:id", async (req, res) => {
   try {
