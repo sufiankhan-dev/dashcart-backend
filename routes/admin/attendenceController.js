@@ -4,6 +4,7 @@ const Attendance = require("../../models/Attendence");
 const Employee = require("../../models/Employe");
 const Location = require("../../models/Locationlist");
 const mongoose = require("mongoose");
+const Schedule = require("../../models/Schedule");
 
 // router.get('/get-employees-by-location/:locationId', async (req, res) => {
 //     const { locationId } = req.params;
@@ -31,7 +32,6 @@ const mongoose = require("mongoose");
 router.get("/attendance/:id", async (req, res) => {
   try {
     const attendance = await Attendance.findById(req.params.id)
-      .populate("employee", "employeeName employeeIDNumber") // Populate employee details
       .populate("location", "locationName address"); // Populate location details
 
     if (!attendance) {
@@ -47,31 +47,31 @@ router.get("/attendance/:id", async (req, res) => {
 
 router.get("/get-attendances", async (req, res) => {
   try {
-    const { location, startDate, endDate } = req.query;
-    // console.log("Received query parameters:", { location, startDate, endDate });
+    const { schedule, startDate, endDate } = req.query;
+    console.log("Received query parameters:", { schedule, startDate, endDate });
 
     let query = {};
 
-    // If location is provided, add it to the query
-    if (location) {
-      query.location = location; // Filter by location._id
+    // If schedule is provided, add it to the query
+    if (schedule) {
+      query.schedule = schedule; // Filter by schedule._id
     }
 
+    // If startDate and endDate are provided, filter by date range
     if (startDate && endDate) {
       const start = new Date(startDate);
       const end = new Date(endDate);
-      // console.log("Start Date:", start, "End Date:", end); // Log the converted dates
-      query.date = {
+      console.log("Start Date:", start, "End Date:", end); // Log the converted dates
+      query.createdAt = {
         $gte: start,
         $lte: end,
       };
     }
 
     const attendances = await Attendance.find(query)
-      .populate("employee", "employeeName employeeIDNumber")
-      .populate("location", "locationName address");
+      .populate("schedule");
 
-    // console.log("Attendance records found:", attendances);
+    console.log("Attendance records found:", attendances);
 
     res.status(200).json({ attendances });
   } catch (error) {
@@ -79,6 +79,7 @@ router.get("/get-attendances", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
 
 // Get attendance by ID
 router.get("/get-attendance/:id", async (req, res) => {
@@ -101,16 +102,14 @@ router.get("/get-attendance/:id", async (req, res) => {
 router.post("/create-attendance", async (req, res) => {
   try {
     const {
-      employeeId,
-      locationId,
+      scheduleId,
       checkInTime,
       checkInLocationName,
       contactNumber,
     } = req.body;
 
     if (
-      !employeeId ||
-      !locationId ||
+      !scheduleId ||
       !checkInTime ||
       !checkInLocationName ||
       !contactNumber
@@ -120,16 +119,12 @@ router.post("/create-attendance", async (req, res) => {
         .json({ message: "All required fields must be filled." });
     }
 
-    const employee = await Employee.findById(employeeId);
-    const location = await Location.findById(locationId);
-    if (!employee)
-      return res.status(404).json({ message: "Employee not found" });
-    if (!location)
+    const schedule = await Schedule.findById(scheduleId);
+    if (!schedule)
       return res.status(404).json({ message: "Location not found" });
 
     const newAttendance = new Attendance({
-      employee: employeeId,
-      location: locationId,
+      schedule: scheduleId,
       checkInRecords: [
         {
           checkInTime,

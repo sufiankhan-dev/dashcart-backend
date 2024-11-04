@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Schedule = require('./Schedule');
 
 // Schema for Attendance
 const AttendanceSchema = new mongoose.Schema({
@@ -7,9 +8,9 @@ const AttendanceSchema = new mongoose.Schema({
         ref: 'Employee',  
         required: true,
     },
-    location: {
+    schedule: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Location',  // Reference to Location model
+        ref: 'Schedule',  
         required: true,
     },
     checkInRecords: [{
@@ -52,6 +53,6 @@ const AttendanceSchema = new mongoose.Schema({
 });
 
 AttendanceSchema.index({ employee: 1 });
-AttendanceSchema.index({ location: 1 });
+AttendanceSchema.index({ Schedule: 1 });
 
 module.exports = mongoose.model('Attendance', AttendanceSchema);
