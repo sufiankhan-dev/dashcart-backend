@@ -76,15 +76,15 @@ const ClientDetailsSchema = new mongoose.Schema({
 const LocationSchema = new mongoose.Schema({
   customerNo: {
     type: String,
-    required: false,
+  },
+  postphone: {
+    type: String,
   },
   locationName: {
     type: String,
-    required: true,
   },
   address: {
     type: String,
-    required: true,
   },
   // userList: [
   //   {
@@ -95,7 +95,6 @@ const LocationSchema = new mongoose.Schema({
   // ],
   timeZone: {
     type: String,
-    required: true,
   },
   // employees: [
   //   {
