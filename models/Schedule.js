@@ -1,9 +1,8 @@
 const mongoose = require("mongoose");
 
-// Schema for an individual event (start and end time with employee assignment)
 const EventSchema = new mongoose.Schema({
   startTime: {
-    type: String, // Storing time as a string, you can modify to Date if necessary
+    type: String,
     required: true,
   },
   endTime: {
@@ -11,25 +10,21 @@ const EventSchema = new mongoose.Schema({
     required: true,
   },
   assignedEmployee: {
-    // type: mongoose.Schema.Types.ObjectId,
-    // ref: "Employee", // Reference to Employee model
-    type: String,
-    // required: true,
+    type: String, // Optional for initial creation
   },
 });
 
-// Schedule schema to store events by date
 const ScheduleSchema = new mongoose.Schema({
   location: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Location", // Reference to Location model
+    ref: "Location",
     required: true,
   },
   date: {
-    type: Date, // Date for the schedule (specific day)
+    type: Date,
     required: true,
   },
-  events: [EventSchema], // Array of events
+  events: [EventSchema],
   createdAt: {
     type: Date,
     default: Date.now,
