@@ -443,11 +443,8 @@ router.post("/create-attendance", async (req, res) => {
 
     if (
       !employeeId ||
-      !locationId ||
-      !checkInTime ||
-      !checkInLocationName ||
-      !contactNumber ||
-      !notes
+      !locationId 
+      
     ) {
       return res
         .status(400)
