@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const Schedule = require('./Schedule');
 
 // Schema for Attendance
 const AttendanceSchema = new mongoose.Schema({
