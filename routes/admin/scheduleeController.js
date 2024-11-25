@@ -197,36 +197,19 @@ router.post("/create-schedule", async (req, res) => {
         .json({ message: "Location, date, and events are required." });
     }
 
-    // Validate if event times exist; assignedEmployee is optional
+    // Validate that each event has only start and end times (no assignedEmployee needed here)
     for (const event of events) {
-      const { assignedEmployee, startTime, endTime } = event;
-
+      const { startTime, endTime } = event;
       if (!startTime || !endTime) {
         return res.status(400).json({
-          message: "Start time and end time are required for each event.",
+          message: "Start and end times are required for each event.",
         });
       }
-
-      // Check if assignedEmployee exists only if it's provided
-      // if (assignedEmployee) {
-      //   const employee = await Employee.findById(assignedEmployee);
-      //   if (!employee) {
-      //     return res
-      //       .status(404)
-      //       .json({
-      //         message: `Employee with ID ${assignedEmployee} not found.`,
-      //       });
-      //   }
-      // }
     }
 
-    const newSchedule = new Schedule({
-      location: locationId,
-      date,
-      events,
-    });
-
+    const newSchedule = new Schedule({ location: locationId, date, events });
     await newSchedule.save();
+
     res.status(201).json({
       message: "Schedule created successfully.",
       schedule: newSchedule,
@@ -236,7 +219,6 @@ router.post("/create-schedule", async (req, res) => {
     res.status(500).json({ message: "Internal server error." });
   }
 });
-
 // Fetch schedules for a specific month and location
 router.get("/get-schedules", async (req, res) => {
   try {
@@ -277,39 +259,30 @@ router.get("/get-schedules", async (req, res) => {
 router.put("/update-schedule/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { date, events } = req.body;
+    const { events } = req.body;
 
-    // Validate if events are provided
     if (!events || events.length === 0) {
-      return res.status(400).json({ message: "Events are required." });
+      return res
+        .status(400)
+        .json({ message: "Events with assigned employees are required." });
     }
 
-    // Find the existing schedule
     const schedule = await Schedule.findById(id);
     if (!schedule) {
       return res.status(404).json({ message: "Schedule not found." });
     }
 
-    // Update date and events
-    schedule.date = date || schedule.date; // Keep existing date if not provided
-    schedule.events = events; // Update events
-
-    // Validate event times
-    for (const event of events) {
-      const { assignedEmployee, startTime, endTime } = event;
-
-      if (!startTime || !endTime) {
-        return res.status(400).json({
-          message: "Start time and end time are required for each event.",
-        });
+    // Update only assignedEmployee in each event
+    schedule.events.forEach((existingEvent, index) => {
+      if (events[index] && events[index].assignedEmployee) {
+        existingEvent.assignedEmployee = events[index].assignedEmployee;
       }
-    }
+    });
 
     await schedule.save();
-    res.status(200).json({
-      message: "Schedule updated successfully.",
-      schedule,
-    });
+    res
+      .status(200)
+      .json({ message: "Schedule updated successfully.", schedule });
   } catch (error) {
     console.error("Error updating schedule:", error);
     res.status(500).json({ message: "Internal server error." });
