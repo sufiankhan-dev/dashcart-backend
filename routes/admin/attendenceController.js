@@ -364,7 +364,7 @@ router.get("/attendance/:id", async (req, res) => {
   try {
     const attendance = await Attendance.findById(req.params.id)
       .populate("employee", "employeeName employeeIDNumber") // Populate employee details
-      .populate("location", "locationName address"); // Populate location details
+      .populate("location", "locationName address").sort("-createdAt") // Populate location details
 
     if (!attendance) {
       return res.status(404).json({ message: "Attendance record not found." });
@@ -401,7 +401,7 @@ router.get("/get-attendances", async (req, res) => {
 
     const attendances = await Attendance.find(query)
       .populate("employee", "employeeName employeeIDNumber")
-      .populate("location", "locationName address");
+      .populate("location", "locationName address").sort("-createdAt")
 
     // console.log("Attendance records found:", attendances);
 
