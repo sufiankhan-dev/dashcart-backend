@@ -50,15 +50,15 @@ router.get("/attendance/:id", async (req, res) => {
 
 router.get("/get-attendances", async (req, res) => {
   try {
-    const { location, startDate, endDate } = req.query;
+    const { location, startDate, endDate, checkInStart, checkInEnd, checkOutStart, checkOutEnd } = req.query;
     let query = {};
 
-    // If location is provided, filter by location._id
+    // Filter by location if provided
     if (location) {
       query.location = location; // This should be the ObjectId of the location
     }
 
-    // If both startDate and endDate are provided, filter by createdAt date
+    // Filter by createdAt date range if both startDate and endDate are provided
     if (startDate && endDate) {
       const start = new Date(startDate);
       const end = new Date(endDate);
@@ -69,7 +69,29 @@ router.get("/get-attendances", async (req, res) => {
       };
     }
 
-    // Fetch attendance records with the location filter applied
+    // Filter by checkInTime range if provided
+    if (checkInStart && checkInEnd) {
+      const checkInStartDate = new Date(checkInStart);
+      const checkInEndDate = new Date(checkInEnd);
+      checkInEndDate.setHours(23, 59, 59, 999); // Include the entire day of checkInEnd
+      query.checkInTime = {
+        $gte: checkInStartDate,
+        $lte: checkInEndDate,
+      };
+    }
+
+    // Filter by checkOutTime range if provided
+    if (checkOutStart && checkOutEnd) {
+      const checkOutStartDate = new Date(checkOutStart);
+      const checkOutEndDate = new Date(checkOutEnd);
+      checkOutEndDate.setHours(23, 59, 59, 999); // Include the entire day of checkOutEnd
+      query.checkOutTime = {
+        $gte: checkOutStartDate,
+        $lte: checkOutEndDate,
+      };
+    }
+
+    // Fetch attendance records with filters applied
     const attendances = await Attendance.find(query)
       .populate("employee") // Populate the employee field with employee details
       .populate("location", "locationName address") // Populate location field with locationName and address
@@ -81,6 +103,7 @@ router.get("/get-attendances", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
 
 
 
