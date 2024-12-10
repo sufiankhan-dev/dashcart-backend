@@ -21,7 +21,7 @@ router.get("/get-users", async (req, res) => {
       .limit(limit)
       .skip(skip)
       .populate("role", "name permissions")
-      .sort("createdAt");
+      .sort("-createdAt");
 
     // Total count of users (excluding deleted ones)
     const total = await User.countDocuments({

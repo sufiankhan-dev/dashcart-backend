@@ -10,7 +10,7 @@ router.get("/get-employees", async (req, res) => {
     const skip = (page - 1) * parseInt(limit);
     const total = await Employee.countDocuments();
     const hasNextPage = skip + parseInt(limit) < total;
-    const employees = await Employee.find().limit(limit).skip(skip).sort("createdAt")
+    const employees = await Employee.find().limit(limit).skip(skip).sort("-createdAt")
 
     const paginationObj = {
       page,

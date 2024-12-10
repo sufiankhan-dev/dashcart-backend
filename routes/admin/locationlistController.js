@@ -59,7 +59,7 @@ router.get("/get-locations", async (req, res) => {
       //   .populate("userList") // Populate user details
       .populate("timeZone") // Populate timezone details
       .populate("locationType")
-      .sort("createdAt"); // Populate location type details
+      .sort("-createdAt"); // Populate location type details
     //   .populate("employees", "employeeName employeeIDNumber"); // Populate employees
 
     res.status(200).json(locations);
