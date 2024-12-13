@@ -53,49 +53,53 @@ router.get("/get-attendances", async (req, res) => {
     const { location, startDate, endDate, checkInStart, checkInEnd, checkOutStart, checkOutEnd } = req.query;
     let query = {};
 
-    // Filter by location if provided
+    // Location filter
     if (location) {
-      query.location = location; // This should be the ObjectId of the location
+      query.location = location; // ObjectId of location
     }
 
-    // Filter by createdAt date range if both startDate and endDate are provided
+    // Date range filter
     if (startDate && endDate) {
       const start = new Date(startDate);
       const end = new Date(endDate);
-      end.setHours(23, 59, 59, 999); // Include the entire day of endDate
+      end.setHours(23, 59, 59, 999);
       query.createdAt = {
         $gte: start,
         $lte: end,
       };
     }
 
-    // Filter by checkInTime range if provided
+    // Check-In Time filter
     if (checkInStart && checkInEnd) {
       const checkInStartDate = new Date(checkInStart);
       const checkInEndDate = new Date(checkInEnd);
-      checkInEndDate.setHours(23, 59, 59, 999); // Include the entire day of checkInEnd
+
       query.checkInTime = {
-        $gte: checkInStartDate,
-        $lte: checkInEndDate,
+        $elemMatch: {
+          $gte: checkInStartDate,
+          $lte: checkInEndDate,
+        },
       };
     }
 
-    // Filter by checkOutTime range if provided
+    // Check-Out Time filter
     if (checkOutStart && checkOutEnd) {
       const checkOutStartDate = new Date(checkOutStart);
       const checkOutEndDate = new Date(checkOutEnd);
-      checkOutEndDate.setHours(23, 59, 59, 999); // Include the entire day of checkOutEnd
+
       query.checkOutTime = {
-        $gte: checkOutStartDate,
-        $lte: checkOutEndDate,
+        $elemMatch: {
+          $gte: checkOutStartDate,
+          $lte: checkOutEndDate,
+        },
       };
     }
 
-    // Fetch attendance records with filters applied
+    // Fetch records
     const attendances = await Attendance.find(query)
-      .populate("employee") // Populate the employee field with employee details
-      .populate("location", "locationName address") // Populate location field with locationName and address
-      .sort("-createdAt"); // Sort by createdAt in descending order
+      .populate("employee")
+      .populate("location", "locationName address")
+      .sort("-createdAt");
 
     res.status(200).json({ attendances });
   } catch (error) {

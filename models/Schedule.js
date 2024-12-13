@@ -30,12 +30,7 @@ const ScheduleSchema = new mongoose.Schema({
     default: Date.now,
   },
 
-  attendees: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Employee", // Reference to User model (e.g., students or employees)
-    },
-  ],
+  
 });
 
 module.exports = mongoose.model("Schedule", ScheduleSchema);
