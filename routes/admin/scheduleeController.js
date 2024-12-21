@@ -247,7 +247,7 @@ router.get("/get-schedules", async (req, res) => {
       date: { $gte: startDate, $lt: endDate },
     })
       // .populate("events.assignedEmployee", "employeeName")
-      .populate("location", "locationName");
+      .populate("location");
 
     res.status(200).json(schedules);
   } catch (error) {
