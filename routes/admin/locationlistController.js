@@ -21,7 +21,7 @@ router.post("/create-location", async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!locationName || !address || !timeZone || !locationType || !schedule) {
+    if (!schedule) {
       return res.status(400).json({ message: "Required fields are missing." });
     }
 
