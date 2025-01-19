@@ -20,6 +20,10 @@ const ScheduleSchema = new mongoose.Schema({
     ref: "Location",
     required: true,
   },
+  attendances: [{ 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "Attendance" // Reference to Attendance model
+  }],
   date: {
     type: Date,
     required: true,

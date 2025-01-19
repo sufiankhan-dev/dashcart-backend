@@ -6,12 +6,14 @@ const AttendanceSchema = new mongoose.Schema({
   location: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Location", // Reference to Location model
-    required: true,
+  },
+  schedule: { // Add the employee reference here
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Schedule", 
   },
   employee: { // Add the employee reference here
     type: mongoose.Schema.Types.ObjectId,
     ref: "Employee", // Assuming the model is named Employee
-    required: true,
   },
 
   callingTimes:{

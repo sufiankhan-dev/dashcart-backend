@@ -187,6 +187,21 @@ const Employee = require("../../models/Employe");
 const Location = require("../../models/Locationlist");
 
 // Create a new schedule for a specific date and location with start and end times
+
+router.get('/schedule/:scheduleId', async (req, res) => {
+  try {
+    const schedule = await Schedule.findById(req.params.scheduleId);
+    if (!schedule) {
+      return res.status(404).json({ error: 'Schedule not found' });
+    }
+    return res.status(200).json(schedule);
+  } catch (error) {
+    console.error('Error fetching schedule:', error);
+    res.status(500).json({ error: 'Failed to fetch schedule' });
+  }
+});
+
+
 router.post("/create-schedule", async (req, res) => {
   try {
     const { locationId, date, events } = req.body;

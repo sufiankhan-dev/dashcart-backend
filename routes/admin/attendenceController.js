@@ -7,6 +7,8 @@ const Employee = require("../../models/Employe");
 const Location = require("../../models/Locationlist");
 const mongoose = require("mongoose");
 const Attendence = require("../../models/Attendence");
+const Schedule = require("../../models/Schedule");
+
 
 // router.get('/get-employees-by-location/:locationId', async (req, res) => {
 //     const { locationId } = req.params;
@@ -30,23 +32,104 @@ const Attendence = require("../../models/Attendence");
 // });
 
 // Existing routes...
+//   router.get("/getSchedulesWithAttendance ", async (req, res) => {
+
+//   try {
+//     // Extract filters from query parameters
+//     const { location, startDate, endDate, employee } = req.query;
+
+//     // Build filter conditions
+//     const scheduleFilter = {};
+//     const attendanceFilter = {};
+
+//     if (location) {
+//       scheduleFilter.location = location; // Filter schedules by location
+//     }
+
+//     if (employee) {
+//       attendanceFilter.employee = employee; // Filter attendance by employee
+//     }
+
+//     if (startDate || endDate) {
+//       attendanceFilter.checkInTime = {};
+//       if (startDate) {
+//         attendanceFilter.checkInTime.$gte = new Date(startDate);
+//       }
+//       if (endDate) {
+//         attendanceFilter.checkInTime.$lte = new Date(endDate);
+//       }
+//     }
+
+//     // Query schedules with associated attendance
+//     const schedules = await Schedule.find(scheduleFilter)
+//       .populate({
+//         path: "location",
+//         select: "name address", // Include necessary location fields
+//       })
+//       .populate({
+//         path: "employee",
+//         select: "name", // Include necessary employee fields
+//       })
+//       .lean(); // Use lean for better performance on read-heavy queries
+
+//     // Fetch and map attendance for each schedule
+//     const scheduleWithAttendance = await Promise.all(
+//       schedules.map(async (schedule) => {
+//         const attendanceRecords = await Attendance.find({
+//           schedule: schedule._id,
+//           ...attendanceFilter, // Apply attendance filters
+//         }).populate({
+//           path: "employee",
+//           select: "name email",
+//         });
+
+//         return {
+//           ...schedule,
+//           attendance: attendanceRecords,
+//         };
+//       })
+//     );
+
+//     // Send the response
+//     res.status(200).json({
+//       success: true,
+//       data: scheduleWithAttendance,
+//     });
+//   } catch (error) {
+//     console.error("Error fetching schedules with attendance:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "An error occurred while fetching data.",
+//     });
+//   }
+// })
+
+
+
+
+
 
 router.get("/attendance/:id", async (req, res) => {
   try {
     const attendance = await Attendance.findById(req.params.id)
       .populate("employee", "employeeName employeeIDNumber") // Populate employee details
-      .populate("location", "locationName address").sort("-createdAt") // Populate location details
+      .populate("location", "locationName address") // Populate location details
 
     if (!attendance) {
       return res.status(404).json({ message: "Attendance record not found." });
     }
 
-    res.status(200).json(attendance);
+    res.status(200).json({
+      success: true,
+      data: attendance,
+    });
   } catch (error) {
     console.error("Error fetching attendance:", error);
-    res.status(500).json({ message: "Internal server error." });
+    res.status(500).json({ success: false, message: "Internal server error." });
   }
 });
+
+
 
 router.get("/get-attendances", async (req, res) => {
   try {
@@ -95,15 +178,38 @@ router.get("/get-attendances", async (req, res) => {
       };
     }
 
-    // Fetch records
+    // Fetch attendance records
     const attendances = await Attendance.find(query)
       .populate("employee")
-      .populate("location", "locationName address")
+      .populate("location", "locationName address postphone")
       .sort("-createdAt");
 
-    res.status(200).json({ attendances });
+    // Fetch schedules for the same location and date range
+    let scheduleQuery = {};
+    if (location) {
+      scheduleQuery.location = location;
+    }
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      scheduleQuery.date = {
+        $gte: start,
+        $lte: end,
+      };
+    }
+
+    const schedules = await Schedule.find(scheduleQuery)
+      .populate("location", "locationName address postphone")
+      .sort("date");
+
+    // Combine results and send response
+    res.status(200).json({
+      attendances,
+      schedules,
+    });
   } catch (error) {
-    console.error("Error fetching attendances:", error);
+    console.error("Error fetching data:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -112,6 +218,95 @@ router.get("/get-attendances", async (req, res) => {
 
 
 // Get attendance by ID
+// router.get("/get-attendances", async (req, res) => {
+//   try {
+//     const { location, startDate, endDate, checkInStart, checkInEnd, checkOutStart, checkOutEnd } = req.query;
+//     let query = {};
+
+//     // Location filter
+//     if (location) {
+//       query.location = location; // ObjectId of location
+//     }
+
+//     // Date range filter
+//     if (startDate && endDate) {
+//       const start = new Date(startDate);
+//       const end = new Date(endDate);
+//       end.setHours(23, 59, 59, 999);
+//       query.createdAt = {
+//         $gte: start,
+//         $lte: end,
+//       };
+//     }
+
+//     // Check-In Time filter
+//     if (checkInStart && checkInEnd) {
+//       const checkInStartDate = new Date(checkInStart);
+//       const checkInEndDate = new Date(checkInEnd);
+
+//       query.checkInTime = {
+//         $elemMatch: {
+//           $gte: checkInStartDate,
+//           $lte: checkInEndDate,
+//         },
+//       };
+//     }
+
+//     // Check-Out Time filter
+//     if (checkOutStart && checkOutEnd) {
+//       const checkOutStartDate = new Date(checkOutStart);
+//       const checkOutEndDate = new Date(checkOutEnd);
+
+//       query.checkOutTime = {
+//         $elemMatch: {
+//           $gte: checkOutStartDate,
+//           $lte: checkOutEndDate,
+//         },
+//       };
+//     }
+
+//     // Fetch records
+//     const attendances = await Attendance.find(query)
+//       .populate("employee")
+//       .populate("location", "locationName address")
+//       .sort("-createdAt");
+
+//     res.status(200).json({ attendances });
+//   } catch (error) {
+//     console.error("Error fetching attendances:", error);
+//     res.status(500).json({ message: "Internal server error" });
+//   }
+// });
+
+// // Schedule periodic data fetch
+// cron.schedule("0 0 * * *", async () => { // Runs at midnight daily
+//   console.log("Running scheduled attendance fetch...");
+//   try {
+//     const today = new Date();
+//     const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+//     const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
+//     // Example query to fetch today's data
+//     const query = {
+//       createdAt: {
+//         $gte: startOfDay,
+//         $lte: endOfDay,
+//       },
+//     };
+
+//     const attendances = await Attendance.find(query)
+//       .populate("employee")
+//       .populate("location", "locationName address")
+//       .sort("-createdAt");
+
+//     console.log("Fetched Attendances:", attendances);
+//     // Optional: Save or process fetched data
+//   } catch (error) {
+//     console.error("Error during scheduled fetch:", error);
+//   }
+// });
+
+
 router.get("/get-attendance/:id", async (req, res) => {
   try {
     const attendance = await Attendance.findById(req.params.id)
@@ -135,6 +330,7 @@ router.post("/create-attendance", async (req, res) => {
     const {
       employeeId,
       locationId,
+      scheduleId,
       callingTimes,
       note,
       checkInTime,
@@ -143,26 +339,33 @@ router.post("/create-attendance", async (req, res) => {
     } = req.body;
 
     // Validate the input fields
-    if (!employeeId || !locationId) {
-      return res.status(400).json({ message: "Employee ID and Location ID are required." });
+    if (!employeeId || !locationId || !scheduleId) {
+      return res
+        .status(400)
+        .json({ message: "Employee ID, Location ID, and Schedule ID are required." });
     }
 
-    // Fetch the employee and location from the database
+    // Fetch the employee, location, and schedule from the database
     const employee = await Employee.findById(employeeId);
     const location = await Location.findById(locationId);
+    const schedule = await Schedule.findById(scheduleId);
 
-    // Check if the employee or location exists
+    // Check if the employee, location, or schedule exists
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
     if (!location) {
       return res.status(404).json({ message: "Location not found" });
     }
+    if (!schedule) {
+      return res.status(404).json({ message: "Schedule not found" });
+    }
 
     // Create a new attendance record
     const newAttendance = new Attendance({
       employee: employeeId,
       location: locationId,
+      schedule: scheduleId,
       callingTimes: callingTimes || [],
       note: note || [],
       checkInTime: checkInTime || [],
@@ -174,12 +377,15 @@ router.post("/create-attendance", async (req, res) => {
     await newAttendance.save();
 
     // Send success response
-    res.status(201).json({ message: "Attendance created successfully", attendance: newAttendance });
+    res
+      .status(201)
+      .json({ message: "Attendance created successfully", attendance: newAttendance });
   } catch (error) {
     console.error("Error creating attendance:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
 
 
 router.put("/check-in-attendance/:id", async (req, res) => {
@@ -263,85 +469,71 @@ router.put("/check-in-attendance/:id", async (req, res) => {
 //   }
 // });
 
-// Update attendance record (check-out)
-router.put('/update-attendance/:id', async (req, res) => {
-  const {
-    employeeId,
-    locationId,
-    checkInTime,
-    checkOutTime,
-    callingTimes,
-    note,
-    status,
-  } = req.body;
-
+// Update attendance record (check-ou
+// Update attendance by ID or scheduleId
+router.put("/update-attendance/:attendanceId", async (req, res) => {
   try {
-    // Validate checkInTime and checkOutTime to ensure they are correct Date objects or ISO date strings
-    if (checkInTime && !Array.isArray(checkInTime)) {
-      return res.status(400).json({ error: 'checkInTime should be an array' });
+    const { attendanceId } = req.params; // Extract attendanceId from URL
+    const {
+      employeeId,
+      locationId,
+      scheduleId,
+      callingTimes,
+      note,
+      checkInTime,
+      checkOutTime,
+      status,
+    } = req.body;
+
+    // Fetch the attendance record
+    const attendance = await Attendance.findById(attendanceId);
+
+    if (!attendance) {
+      return res.status(404).json({ message: "Attendance record not found." });
     }
 
-    if (checkOutTime && !Array.isArray(checkOutTime)) {
-      return res.status(400).json({ error: 'checkOutTime should be an array' });
-    }
-
-    // Validate each item in checkInTime
-    if (checkInTime) {
-      for (let time of checkInTime) {
-        if (isNaN(Date.parse(time))) {
-          return res.status(400).json({ error: `Invalid check-in time format: ${time}` });
-        }
+    // Validate the input fields
+    if (employeeId) {
+      const employee = await Employee.findById(employeeId);
+      if (!employee) {
+        return res.status(404).json({ message: "Employee not found" });
       }
+      attendance.employee = employeeId;
     }
 
-    // Validate each item in checkOutTime
-    if (checkOutTime) {
-      for (let time of checkOutTime) {
-        if (isNaN(Date.parse(time))) {
-          return res.status(400).json({ error: `Invalid check-out time format: ${time}` });
-        }
+    if (locationId) {
+      const location = await Location.findById(locationId);
+      if (!location) {
+        return res.status(404).json({ message: "Location not found" });
       }
+      attendance.location = locationId;
     }
 
-    // Ensure the times are converted to Date objects if provided
-    const parsedCheckInTime = checkInTime ? checkInTime.map(time => new Date(time)) : undefined;
-    const parsedCheckOutTime = checkOutTime ? checkOutTime.map(time => new Date(time)) : undefined;
-
-    // Find the attendance record by ID
-    let attendance = await Attendance.findById(req.params.id);
-
-    if (attendance) {
-      // Update the existing attendance record
-      attendance.checkInTime = parsedCheckInTime || attendance.checkInTime;
-      attendance.checkOutTime = parsedCheckOutTime || attendance.checkOutTime;
-      attendance.callingTimes = callingTimes || attendance.callingTimes;
-      attendance.note = note || attendance.note;
-      attendance.status = status || attendance.status;
-
-      // Save the updated attendance record
-      await attendance.save();
-
-      return res.status(200).json({ message: 'Attendance updated successfully', attendance });
-    } else {
-      // If attendance record doesn't exist, create a new one
-      attendance = new Attendance({
-        employee: employeeId,
-        location: locationId,
-        checkInTime: parsedCheckInTime,
-        checkOutTime: parsedCheckOutTime,
-        callingTimes: callingTimes,
-        note: note ,
-        status: status || 'Present',
-      });
-
-      // Save the new attendance record
-      await attendance.save();
-
-      return res.status(201).json({ message: 'Attendance added successfully', attendance });
+    if (scheduleId) {
+      const schedule = await Schedule.findById(scheduleId);
+      if (!schedule) {
+        return res.status(404).json({ message: "Schedule not found" });
+      }
+      attendance.schedule = scheduleId;
     }
+
+    // Update the fields if provided
+    if (callingTimes) attendance.callingTimes = callingTimes;
+    if (note) attendance.note = note;
+    if (checkInTime) attendance.checkInTime = checkInTime;
+    if (checkOutTime) attendance.checkOutTime = checkOutTime;
+    if (status) attendance.status = status;
+
+    // Save the updated attendance record
+    await attendance.save();
+
+    res.status(200).json({
+      message: "Attendance updated successfully.",
+      attendance,
+    });
   } catch (error) {
-    console.error('Error updating or adding attendance:', error);
-    res.status(500).json({ error: 'Failed to update or add attendance' });
+    console.error("Error updating attendance:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
 });
 
@@ -350,29 +542,6 @@ router.put('/update-attendance/:id', async (req, res) => {
 
 
 // Update attendance status (Present, Absent, On Leave)
-router.patch("/update-attendance-status/:id", async (req, res) => {
-  try {
-    const { status } = req.body;
-
-    if (!status || !["Present", "Absent", "On Leave"].includes(status)) {
-      return res.status(400).json({ message: "Invalid status value." });
-    }
-
-    const attendance = await Attendance.findById(req.params.id);
-    if (!attendance)
-      return res.status(404).json({ message: "Attendance not found" });
-
-    attendance.status = status;
-
-    await attendance.save();
-    res
-      .status(200)
-      .json({ message: "Attendance status updated successfully." });
-  } catch (error) {
-    console.error("Error updating attendance status:", error);
-    res.status(500).json({ message: "Internal server error." });
-  }
-});
 
 // Update attendance record (check-in)
 router.put("/update-checkin/:id", async (req, res) => {
