@@ -470,7 +470,9 @@ router.put("/check-in-attendance/:id", async (req, res) => {
 // });
 
 // Update attendance record (check-ou
-// Update attendance by ID or scheduleId
+
+
+
 router.put("/update-attendance/:attendanceId", async (req, res) => {
   try {
     const { attendanceId } = req.params; // Extract attendanceId from URL
@@ -484,6 +486,11 @@ router.put("/update-attendance/:attendanceId", async (req, res) => {
       checkOutTime,
       status,
     } = req.body;
+
+    // Check if the attendanceId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(attendanceId)) {
+      return res.status(400).json({ message: "Invalid attendance ID." });
+    }
 
     // Fetch the attendance record
     const attendance = await Attendance.findById(attendanceId);
@@ -536,10 +543,6 @@ router.put("/update-attendance/:attendanceId", async (req, res) => {
     res.status(500).json({ message: "Internal server error." });
   }
 });
-
-
-
-
 
 // Update attendance status (Present, Absent, On Leave)
 
