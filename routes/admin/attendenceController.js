@@ -177,8 +177,6 @@ router.get("/get-attendances", async (req, res) => {
         },
       };
     }
-
-    // Fetch attendance records
     const attendances = await Attendance.find(query)
       .populate("employee")
       .populate("location", "locationName address postphone")
@@ -203,7 +201,6 @@ router.get("/get-attendances", async (req, res) => {
       .populate("location", "locationName address postphone")
       .sort("date");
 
-    // Combine results and send response
     res.status(200).json({
       attendances,
       schedules,
@@ -326,7 +323,6 @@ router.get("/get-attendance/:id", async (req, res) => {
 // Create new attendance record (check-in)
 router.post("/create-attendance", async (req, res) => {
   try {
-    // Destructuring the request body to get the necessary data
     const {
       employeeId,
       locationId,
@@ -350,7 +346,6 @@ router.post("/create-attendance", async (req, res) => {
     const location = await Location.findById(locationId);
     const schedule = await Schedule.findById(scheduleId);
 
-    // Check if the employee, location, or schedule exists
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
@@ -361,30 +356,53 @@ router.post("/create-attendance", async (req, res) => {
       return res.status(404).json({ message: "Schedule not found" });
     }
 
-    // Create a new attendance record
-    const newAttendance = new Attendance({
+    // Check if attendance record already exists
+    const existingAttendance = await Attendance.findOne({
       employee: employeeId,
       location: locationId,
       schedule: scheduleId,
-      callingTimes: callingTimes || [],
-      note: note || [],
-      checkInTime: checkInTime || [],
-      checkOutTime: checkOutTime || [],
-      status: status || "Present", // Default to "Present" if no status provided
     });
 
-    // Save the new attendance record to the database
-    await newAttendance.save();
+    if (existingAttendance) {
+      // Update the existing attendance record
+      existingAttendance.callingTimes = callingTimes || existingAttendance.callingTimes;
+      existingAttendance.note = note || existingAttendance.note;
+      existingAttendance.checkInTime = checkInTime || existingAttendance.checkInTime;
+      existingAttendance.checkOutTime = checkOutTime || existingAttendance.checkOutTime;
+      existingAttendance.status = status || existingAttendance.status;
 
-    // Send success response
-    res
-      .status(201)
-      .json({ message: "Attendance created successfully", attendance: newAttendance });
+      // Save the updated record
+      await existingAttendance.save();
+
+      return res
+        .status(200)
+        .json({ message: "Attendance updated successfully", attendance: existingAttendance });
+    } else {
+      // Create a new attendance record
+      const newAttendance = new Attendance({
+        employee: employeeId,
+        location: locationId,
+        schedule: scheduleId,
+        callingTimes: callingTimes || [],
+        note: note || [],
+        checkInTime: checkInTime || [],
+        checkOutTime: checkOutTime || [],
+        status: status || "Present",
+      });
+
+      // Save the new record
+      await newAttendance.save();
+
+      return res
+        .status(201)
+        .json({ message: "Attendance created successfully", attendance: newAttendance });
+    }
   } catch (error) {
-    console.error("Error creating attendance:", error);
+    console.error("Error processing attendance:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
 
 
 
