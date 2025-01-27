@@ -133,71 +133,90 @@ router.get("/attendance/:id", async (req, res) => {
 
 router.get("/get-attendances", async (req, res) => {
   try {
-    const { location, startDate, endDate, checkInStart, checkInEnd, checkOutStart, checkOutEnd } = req.query;
+    const {
+      location,
+      startDate,
+      endDate,
+      checkInStart,
+      checkInEnd,
+      checkOutStart,
+      checkOutEnd,
+      eventStartTime,
+      eventEndTime,
+    } = req.query;
+
     let query = {};
 
     // Location filter
     if (location) {
-      query.location = location; // ObjectId of location
+      query.location = location;
     }
 
     // Date range filter
     if (startDate && endDate) {
       const start = new Date(startDate);
       const end = new Date(endDate);
-      end.setHours(23, 59, 59, 999);
+
+      // Handle if the end date is before the start date (spanning across midnight)
+      if (end < start) {
+        end.setDate(end.getDate() + 1);
+      }
+
       query.createdAt = {
         $gte: start,
         $lte: end,
       };
     }
 
-    // Check-In Time filter
+    // Check-In Time filter (if applicable)
     if (checkInStart && checkInEnd) {
       const checkInStartDate = new Date(checkInStart);
       const checkInEndDate = new Date(checkInEnd);
 
       query.checkInTime = {
-        $elemMatch: {
-          $gte: checkInStartDate,
-          $lte: checkInEndDate,
-        },
+        $gte: checkInStartDate,
+        $lte: checkInEndDate,
       };
     }
 
-    // Check-Out Time filter
+    // Check-Out Time filter (if applicable)
     if (checkOutStart && checkOutEnd) {
       const checkOutStartDate = new Date(checkOutStart);
       const checkOutEndDate = new Date(checkOutEnd);
 
       query.checkOutTime = {
-        $elemMatch: {
-          $gte: checkOutStartDate,
-          $lte: checkOutEndDate,
-        },
+        $gte: checkOutStartDate,
+        $lte: checkOutEndDate,
       };
     }
+
+    // Event Time filter (new logic for filtering events by start and end time)
+    if (eventStartTime && eventEndTime) {
+      const eventStart = new Date(eventStartTime);
+      const eventEnd = new Date(eventEndTime);
+
+      // If the event's end time is before the start time, it spans midnight
+      if (eventEnd < eventStart) {
+        eventEnd.setDate(eventEnd.getDate() + 1); // Adjust end time by adding a day
+      }
+
+      query["events.startTime"] = {
+        $gte: eventStart.toISOString(),
+      };
+
+      query["events.endTime"] = {
+        $lte: eventEnd.toISOString(),
+      };
+    }
+
+    // Fetch attendances based on the constructed query
     const attendances = await Attendance.find(query)
       .populate("employee")
       .populate("location", "locationName address postphone")
       .sort("-createdAt");
 
-    // Fetch schedules for the same location and date range
-    let scheduleQuery = {};
-    if (location) {
-      scheduleQuery.location = location;
-    }
-    if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      end.setHours(23, 59, 59, 999);
-      scheduleQuery.date = {
-        $gte: start,
-        $lte: end,
-      };
-    }
-
-    const schedules = await Schedule.find(scheduleQuery)
+    // Fetch schedules based on the constructed query
+    const schedules = await Schedule.find(query)
       .populate("location", "locationName address postphone")
       .sort("date");
 
@@ -210,6 +229,10 @@ router.get("/get-attendances", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+
+
+
 
 
 

@@ -324,4 +324,103 @@ router.delete("/delete-schedule/:id", async (req, res) => {
   }
 });
 
+
+
+
+
+router.post("/attendence-schedule", async (req, res) => {
+  try {
+    const { location, calltime, checkintime, checkout, attendances, date, events } = req.body;
+
+    // Validate the location is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(location)) {
+      return res.status(400).json({ message: "Invalid location ID" });
+    }
+
+    // Create a new Schedule document
+    const schedule = new Schedule({
+      location,
+      calltime,
+      checkintime,
+      checkout,
+      attendances,
+      date,
+      events,
+    });
+
+    // Save to the database
+    await schedule.save();
+    res.status(201).json({ message: "Schedule created successfully", schedule });
+  } catch (error) {
+    console.error("Error creating schedule:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
+
+router.get("/get-attendence-schedule", async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    let filter = {};
+
+    // Add date filtering if both startDate and endDate are provided
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+      // Set the date filter
+      filter.date = { $gte: start, $lte: end };
+    }
+
+    // Fetch schedules with filters, populated references, and field selection
+    const schedules = await Schedule.find(filter)
+      .populate("location", "locationName address postphone") // Populate location with specific fields
+      .populate("attendances") // Populate attendances
+      .select("-events.startTime -events.endTime"); // Exclude startTime and endTime from events
+
+    // Respond with the filtered schedules
+    res.status(200).json(schedules);
+  } catch (error) {
+    console.error("Error fetching schedules:", error);
+    res.status(500).json({ message: "Internal server error", error });
+  }
+});
+
+
+
+router.put("/attendence-schedule/:id", async (req, res) => {
+  try {
+    const { location, calltime, checkintime, checkout, attendances, date, events } = req.body;
+    const scheduleId = req.params.id; // Get the schedule ID from the URL parameter
+
+    // Find the schedule by its ID and update it
+    const updatedSchedule = await Schedule.findByIdAndUpdate(
+      scheduleId,
+      {
+        location,
+        calltime,
+        checkintime,
+        checkout,
+        attendances,
+        date,
+        events,
+      },
+      { new: true } // Return the updated document
+    );
+
+    // Check if the schedule was found and updated
+    if (!updatedSchedule) {
+      return res.status(404).json({ message: "Schedule not found" });
+    }
+
+    // Send the updated schedule as the response
+    res.status(200).json({ message: "Schedule updated successfully", updatedSchedule });
+  } catch (error) {
+    console.error("Error updating schedule:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 module.exports = router;

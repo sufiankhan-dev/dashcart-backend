@@ -1,14 +1,16 @@
 const mongoose = require("mongoose");
+const { checkout } = require("../routes/admin/attendenceController");
 
 const EventSchema = new mongoose.Schema({
   startTime: {
     type: String,
-    required: true,
+    // required: true,
   },
   endTime: {
     type: String,
-    required: true,
+    // required: true,
   },
+ 
   assignedEmployee: {
     type: String, // Optional for initial creation
   },
@@ -19,6 +21,19 @@ const ScheduleSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Location",
     required: true,
+  },
+  calltime:{
+    type:[String]
+
+  },
+  checkintime:{
+    type:[String]
+
+
+  },
+  checkout:{
+    type:[String]
+
   },
   attendances: [{ 
     type: mongoose.Schema.Types.ObjectId, 
