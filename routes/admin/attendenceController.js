@@ -186,32 +186,18 @@ router.get("/get-attendances", async (req, res) => {
     }
 
     // Event Time filter
-   // Event Time filter (for string-based times)
-if (eventStartTime && eventEndTime) {
-  const eventStart = new Date(`1970-01-01T${eventStartTime}Z`); // Convert string time to Date
-  const eventEnd = new Date(`1970-01-01T${eventEndTime}Z`);
-
-  // If the event's end time is before the start time, assume it spans midnight
-  if (eventEnd < eventStart) {
-    query.$or = [
-      {
-        $and: [
-          { "events.startTime": { $gte: eventStartTime } },
-          { "events.startTime": { $lte: "23:59:59" } },
-        ],
-      },
-      {
-        $and: [
-          { "events.startTime": { $gte: "00:00:00" } },
-          { "events.startTime": { $lte: eventEndTime } },
-        ],
-      },
-    ];
-  } else {
-    query["events.startTime"] = { $gte: eventStartTime };
-    query["events.endTime"] = { $lte: eventEndTime };
-  }
-}
+    if (eventStartTime && eventEndTime) {
+      const formatTime = (dateTime) => {
+        const date = new Date(dateTime);
+        return date.toTimeString().split(" ")[0].slice(0, 5); // Extract HH:mm
+      };
+    
+      const startTimeString = formatTime(eventStartTime);
+      const endTimeString = formatTime(eventEndTime);
+    
+      query["events.startTime"] = { $gte: startTimeString };
+      query["events.endTime"] = { $lte: endTimeString };
+    }
 
 
     // Fetch attendances based on the constructed query
