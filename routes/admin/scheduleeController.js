@@ -207,22 +207,30 @@ router.post("/create-schedule", async (req, res) => {
     const { locationId, date, events } = req.body;
 
     if (!locationId || !date || !events || events.length === 0) {
-      return res
-        .status(400)
-        .json({ message: "Location, date, and events are required." });
+      return res.status(400).json({
+        message: "Location, date, and events are required.",
+      });
     }
 
-    // Validate that each event has only start and end times (no assignedEmployee needed here)
+    // Validate events
     for (const event of events) {
-      const { startTime, endTime } = event;
-      if (!startTime || !endTime) {
+      if (!event.startTime || !event.endTime) {
         return res.status(400).json({
           message: "Start and end times are required for each event.",
         });
       }
     }
 
-    const newSchedule = new Schedule({ location: locationId, date, events });
+    // ✅ Convert the date properly to ensure it's saved correctly
+    const inputDate = new Date(date); // Convert incoming date
+    const utcDate = new Date(Date.UTC(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate())); 
+
+    const newSchedule = new Schedule({
+      location: locationId,
+      date: utcDate, // ✅ Store date correctly in UTC
+      events,
+    });
+
     await newSchedule.save();
 
     res.status(201).json({
@@ -234,42 +242,57 @@ router.post("/create-schedule", async (req, res) => {
     res.status(500).json({ message: "Internal server error." });
   }
 });
+
+
 // Fetch schedules for a specific month and location
 router.get("/get-schedules", async (req, res) => {
   try {
     const { locationId, month, year } = req.query;
 
-    // Ensure month and year are numbers and valid
     const parsedMonth = parseInt(month, 10);
     const parsedYear = parseInt(year, 10);
 
-    if (
-      isNaN(parsedMonth) ||
-      isNaN(parsedYear) ||
-      parsedMonth < 1 ||
-      parsedMonth > 12
-    ) {
+    if (isNaN(parsedMonth) || isNaN(parsedYear) || parsedMonth < 1 || parsedMonth > 12) {
       return res.status(400).json({ message: "Invalid month or year." });
     }
 
-    // Create start and end dates for the query
-    const startDate = new Date(parsedYear, parsedMonth - 1, 1);
-    const endDate = new Date(parsedYear, parsedMonth, 0); // Last day of the month
+    // Calculate the start and end dates for previous, current, and next month
+    const startDatePrevMonth = new Date(Date.UTC(parsedYear, parsedMonth - 2, 1)); // Previous month
+    const endDatePrevMonth = new Date(Date.UTC(parsedYear, parsedMonth - 1, 0, 23, 59, 59)); // End of previous month
 
-    // Find schedules in the date range for the given location
+    const startDateCurrentMonth = new Date(Date.UTC(parsedYear, parsedMonth - 1, 1)); // Current month
+    const endDateCurrentMonth = new Date(Date.UTC(parsedYear, parsedMonth, 0, 23, 59, 59)); // End of current month
+
+    const startDateNextMonth = new Date(Date.UTC(parsedYear, parsedMonth, 1)); // Next month
+    const endDateNextMonth = new Date(Date.UTC(parsedYear, parsedMonth + 1, 0, 23, 59, 59)); // End of next month
+
+    console.log("Fetching schedules from", startDatePrevMonth.toISOString(), "to", endDateNextMonth.toISOString());
+
+    // Fetch schedules for the three months
     const schedules = await Schedule.find({
       location: locationId,
-      date: { $gte: startDate, $lt: endDate },
-    })
-      // .populate("events.assignedEmployee", "employeeName")
-      .populate("location");
+      date: { 
+        $gte: startDatePrevMonth, 
+        $lte: endDateNextMonth 
+      },
+    }).populate("location");
 
-    res.status(200).json(schedules);
+    const formattedSchedules = schedules.map((schedule) => ({
+      ...schedule._doc,
+      date: new Date(schedule.date).toISOString(), // Convert all stored dates to UTC
+    }));
+
+    res.status(200).json(formattedSchedules);
   } catch (error) {
     console.error("Error fetching schedules:", error);
     res.status(500).json({ message: "Internal server error." });
   }
 });
+
+
+
+
+
 
 router.put("/update-schedule/:id", async (req, res) => {
   try {
