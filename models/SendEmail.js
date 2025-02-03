@@ -18,7 +18,7 @@ const sendEmail = async (email, otp) => {
     text: `Your OTP code is: ${otp}`,
   };
 
-  // Send the email
+
   try {
     await transporter.sendMail(mailOptions);
     console.log("OTP sent successfully");
