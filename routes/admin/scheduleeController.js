@@ -469,12 +469,9 @@ router.put("/schedule/update-timings", async (req, res) => {
       return date;
     };
 
-    // Convert time strings to Date objects
     const callTimeDate = convertToDate(callTime);
     const checkInTimeDate = convertToDate(checkInTime);
     const checkOutTimeDate = convertToDate(checkOutTime);
-
-    // Ensure calltime, checkintime, and checkout are initialized as arrays
     if (!Array.isArray(schedule.calltime)) schedule.calltime = [];
     if (!Array.isArray(schedule.checkintime)) schedule.checkintime = [];
     if (!Array.isArray(schedule.checkout)) schedule.checkout = [];
