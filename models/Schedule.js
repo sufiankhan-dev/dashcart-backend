@@ -27,17 +27,20 @@ const ScheduleSchema = new mongoose.Schema({
     required: true,
   },
   calltime:{
-    type:[String]
+    type:[Date]
 
   },
   checkintime:{
-    type:[String]
+    type:[Date]
 
 
   },
   checkout:{
-    type:[String]
+    type:[Date]
 
+  },
+  Note:{
+    type:[String]
   },
   attendances: [{ 
     type: mongoose.Schema.Types.ObjectId, 

@@ -35,21 +35,6 @@ const UserSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  secondaryEmail: {
-    type: String,
-  },
-  address: {
-    type: String,
-  },
-  dateOfBirth: {
-    type: Date,
-    required: true,
-  },
-  gender: {
-    type: String,
-    enum: ["Male", "Female", "Other"],
-    required: true,
-  },
   type: {
     type: String,
     default: "admin",
