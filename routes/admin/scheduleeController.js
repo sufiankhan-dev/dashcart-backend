@@ -446,7 +446,7 @@ router.put("/attendence-schedule/:id", async (req, res) => {
   }
 });
 
-router.put("/schedule/update-timings", async (req, res) => {
+router.put("/update-timings", async (req, res) => {
   try {
     const { scheduleId, callTime, checkInTime, checkOutTime, note } = req.body;  // Note is expected to be an array
 
